@@ -250,12 +250,30 @@ footer.f .disc{font-size:11px;color:#9FC3CF}
       <label>Faltas injustificadas no período aquisitivo atual<input type="number" min="0" step="1" id="faltas" value="0"></label>
       <label>Saldo do FGTS (extrato Caixa, p/ multa)<input type="number" step="0.01" id="saldoFgts" placeholder="0,00"></label>
       <label>Ano da competência (tabela INSS)<input type="number" id="anoComp" value="2026"></label>
-      <label>IRRF apurado (informar manualmente)<input type="number" step="0.01" id="irrfManual" placeholder="0,00"></label>
+      <label>IRRF apurado (informe ou calcule abaixo)<input type="number" step="0.01" id="irrfManual" placeholder="0,00"></label>
       <label>Outros descontos (adiantamento, pensão, consignado)<input type="number" step="0.01" id="outrosDescontos" placeholder="0,00"></label>
     </div>
-    <div class="banner warn" style="margin-top:4px">
-      <b>IRRF:</b> não há tabela de IRRF validada nesta ferramenta — informe o valor apurado no sistema de
-      folha ou confira a tabela vigente antes de lançar. <b>Tabela INSS:</b> só a de 2026 está validada;
+    <div class="grid" style="margin-top:12px">
+      <label>Rendimento tributável do mês (R$, p/ IRRF)
+        <input type="number" step="0.01" id="irrfRendTrib" placeholder="0,00">
+        <span class="hint">Valor bruto tributável apurado pela folha (a classificação tributável × isenta segue o sistema de folha)</span>
+      </label>
+      <label>INSS a deduzir da base (R$)
+        <input type="number" step="0.01" id="irrfInssDeduz" placeholder="0,00">
+      </label>
+      <label>Dependentes (IRRF)
+        <input type="number" min="0" step="1" id="irrfDeps" value="0">
+      </label>
+      <label style="justify-content:flex-end">&nbsp;
+        <button class="btn sec" type="button" id="btnCalcIrrf">Calcular IRRF 2026</button>
+      </label>
+    </div>
+    <div class="hint" id="irrfMemoria" style="margin-top:6px"></div>
+    <div class="banner warn" style="margin-top:8px">
+      <b>IRRF:</b> tabela mensal de 2026 validada (Lei 15.191/2025) com a redução da Lei 15.270/2025
+      (imposto zero até R$ 5.000,00 de rendimento tributável; redução decrescente até R$ 7.350,00). O
+      cálculo parte do <b>rendimento tributável que você informar</b> — a separação tributável × isento
+      das verbas continua com o sistema de folha. <b>Tabela INSS:</b> só a de 2026 está validada;
       para outro ano, ajuste manualmente após calcular.
     </div>
   </div>
@@ -286,11 +304,15 @@ footer.f .disc{font-size:11px;color:#9FC3CF}
     <h2>7 · Conferência de verbas</h2>
     <div class="tblwrap">
       <table class="res" id="tblResultado">
-        <thead><tr><th>Verba</th><th>Memória de cálculo</th><th style="text-align:right">Valor</th></tr></thead>
+        <thead><tr><th>Verba</th><th>Memória de cálculo</th><th style="text-align:right">Valor recalculado</th><th style="text-align:right">Valor na folha (opcional)</th></tr></thead>
         <tbody></tbody>
       </table>
     </div>
-    <div class="hint" style="margin-top:10px">Confira cada linha antes de gerar o documento. Linhas em cinza = verba não devida nesta modalidade.</div>
+    <div class="hint" style="margin-top:10px">Confira cada linha antes de gerar o documento. Linhas em cinza = verba não devida nesta modalidade.
+      A coluna <b>Valor na folha</b> é opcional: digite o valor que saiu no sistema de folha/TRCT para gerar o
+      <b>Relatório de Auditoria</b> (comparativo) ou para usar esses valores nos documentos.</div>
+    <label class="row-check" style="margin-top:8px;text-transform:none"><input type="checkbox" id="chkUsarFolha">
+      Gerar Acordo/Recibo/Demonstrativo com os <b>valores da folha</b> (nas linhas preenchidas; as demais mantêm o recálculo)</label>
   </div>
 
   <!-- ============ DOCUMENTO ============ -->
@@ -304,6 +326,7 @@ footer.f .disc{font-size:11px;color:#9FC3CF}
       <button class="btn sec" id="btnAcordo">Acordo Rescisório</button>
       <button class="btn sec" id="btnRecibo">Recibo Avulso</button>
       <button class="btn sec" id="btnDemonstrativo">Demonstrativo de Valores</button>
+      <button class="btn sec" id="btnAuditoria">Relatório de Auditoria</button>
     </div>
     <div class="previewbox"><iframe id="docFrame" title="Prévia do documento"></iframe></div>
     <div class="toolbar">
@@ -315,6 +338,22 @@ footer.f .disc{font-size:11px;color:#9FC3CF}
       Ao imprimir: <b>Papel A4 · Retrato</b>, <b>Margens: Padrão</b>, <b>Escala: 100%</b>,
       <b>Gráficos de fundo: ativado</b>, <b>Cabeçalhos e rodapés do navegador: desativado</b>.
     </div>
+  </div>
+
+  <!-- ============ TABELA 03 eSOCIAL ============ -->
+  <div class="card">
+    <h2>9 · Tabela 03 do eSocial — Natureza das Rubricas (consulta)</h2>
+    <label>Filtrar por código ou palavra (ex.: 6003, férias, consignado)
+      <input type="text" id="rubricaBusca" placeholder="Digite para filtrar as naturezas da Tabela 03" autocomplete="off">
+    </label>
+    <div class="tblwrap" style="max-height:420px;overflow:auto;margin-top:10px">
+      <table class="res" id="tblRubricas">
+        <thead><tr><th style="width:70px">Cód.</th><th style="width:260px">Natureza</th><th>Descrição</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <div class="hint" style="margin-top:8px">Fonte: Tabela 03 do eSocial — Natureza das Rubricas da Folha de Pagamento (planilha padrão da Mury).
+      É o código que sai na coluna <b>Nat.</b> dos documentos gerados; use-a também para classificar rubricas no eSocial (S-1010 / S-1200 / S-2299).</div>
   </div>
 
 </div>
@@ -453,6 +492,35 @@ function calcularINSS(base, ano){
     }
   }
   return Math.max(0, teto*0.14 - 198.50);
+}
+
+/* =====================================================================
+   TABELA IRRF 2026 (Lei 15.191/2025) + REDUÇÃO (Lei 15.270/2025)
+   Fonte: página oficial "Tributação de 2026" da Receita Federal
+   (atualizada 27/04/2026). O cálculo parte do rendimento tributável
+   informado pelo usuário — a classificação tributável × isenta das
+   verbas segue o sistema de folha.
+   ===================================================================== */
+const TABELA_IRRF_2026 = [
+  {lim:2428.80, aliq:0,     deduz:0},
+  {lim:2826.65, aliq:0.075, deduz:182.16},
+  {lim:3751.05, aliq:0.15,  deduz:394.16},
+  {lim:4664.68, aliq:0.225, deduz:675.49},
+  {lim:Infinity, aliq:0.275, deduz:908.73},
+];
+const IRRF_DEDUCAO_DEPENDENTE_2026 = 189.59;
+function calcIRRF2026(rendTributavel, inssDeduzir, dependentes){
+  const base = Math.max(0, rendTributavel - inssDeduzir - dependentes*IRRF_DEDUCAO_DEPENDENTE_2026);
+  let imposto = 0;
+  for (const faixa of TABELA_IRRF_2026){
+    if (base <= faixa.lim + 0.001){ imposto = Math.max(0, base*faixa.aliq - faixa.deduz); break; }
+  }
+  // Redução Lei 15.270/2025 — aplicada sobre o RENDIMENTO TRIBUTÁVEL (bruto)
+  let reducao = 0;
+  if (rendTributavel <= 5000.00){ reducao = imposto; }
+  else if (rendTributavel <= 7350.00){ reducao = Math.min(imposto, Math.max(0, 978.62 - 0.133145*rendTributavel)); }
+  const impostoFinal = Math.max(0, imposto - reducao);
+  return { base, imposto, reducao, impostoFinal };
 }
 
 /* =====================================================================
@@ -696,29 +764,30 @@ function calcular(){
   const inssTotal = inssAuto ? 0 : (inssMes + inss13);
 
   const proventos = [
-    {verba:'Saldo de salário', devida:true,
+    {verba:'Saldo de salário', nat:'6000', devida:true,
       memoria:'('+brl(baseCalculo)+' ÷ 30) × '+diaDeslig+' dia(s)', valor: saldoSalario},
     {verba:'Aviso prévio '+(avisoTipo==='indenizado'?'indenizado':'trabalhado')+(avisoDevidoPor==='empregado'?' (devido pelo empregado)':''),
+      nat: avisoTipo==='indenizado' ? '6003' : '6000',
       devida: avisoDias>0 && avisoDevidoPor==='empregadora',
       memoria: avisoDias>0 ? (avisoDias+' dias (30 + 3×'+anosCompletos+' ano(s), máx. 90 — Lei 12.506/2011)') : 'Não aplicável a esta modalidade',
       valor: avisoDevidoPor==='empregadora' ? avisoValor : 0},
-    {verba:'13º salário proporcional', devida: decimoDevido,
+    {verba:'13º salário proporcional', nat: projeta ? '6002 + 6001' : '6002', devida: decimoDevido,
       memoria: decimoDevido ? ('('+brl(baseCalculo)+' ÷ 12) × '+meses13+' mês(es)') : 'Não devido nesta modalidade (Lei 4.090/62, art. 3º)',
       valor: decimoValor},
-    {verba:'Férias proporcionais + 1/3', devida: feriasPropDevida,
+    {verba:'Férias proporcionais + 1/3', nat:'6006', devida: feriasPropDevida,
       memoria: feriasPropDevida ? ('('+brl(baseCalculo)+' ÷ 12) × '+mesesFerias+' mês(es)'+(fatorFaltas<1?(' × '+(fatorFaltas*30)+'/30 (faltas)'):'')+' × 4/3') : 'Não devida nesta modalidade (art. 146, § único CLT + Súmula 171 TST)',
       valor: feriasPropValor},
-    {verba:'Férias vencidas + 1/3'+(chkFeriasDobro?' (em dobro)':''), devida: chkFeriasVencidas,
+    {verba:'Férias vencidas + 1/3'+(chkFeriasDobro?' (em dobro)':''), nat: chkFeriasDobro ? '6004' : '6007', devida: chkFeriasVencidas,
       memoria: chkFeriasVencidas ? (brl(baseCalculo)+' × 4/3'+(chkFeriasDobro?' × 2 (art. 137 CLT)':'')) : 'Marque a caixa acima se houver período vencido',
       valor: feriasVencValor},
   ];
 
   const descontos = [
-    {verba:'INSS sobre salário/aviso trabalhado', devida:!inssAuto, memoria: inssAuto ? 'Ano ≠ 2026 — calcular manualmente' : ('Tabela 2026 sobre '+brl(baseInssMes)), valor: inssAuto?0:inssMes},
-    {verba:'INSS sobre 13º (base própria)', devida:!inssAuto, memoria: inssAuto ? 'Ano ≠ 2026 — calcular manualmente' : ('Tabela 2026 sobre '+brl(decimoValor)), valor: inssAuto?0:inss13},
-    {verba:'IRRF (informado manualmente)', devida: irrfManual>0, memoria:'Valor apurado fora desta ferramenta', valor: irrfManual},
-    {verba:'Desconto de aviso prévio não cumprido', devida: descontoAvisoNaoCumprido>0, memoria: descontoAvisoNaoCumprido>0 ? (avisoDias+' dias não cumpridos (art. 487, §2º CLT)') : '—', valor: descontoAvisoNaoCumprido},
-    {verba:'Outros descontos (adiantamento, pensão, consignado)', devida: outrosDescontos>0, memoria:'Informado manualmente', valor: outrosDescontos},
+    {verba:'INSS sobre salário/aviso trabalhado', nat:'9201', devida:!inssAuto, memoria: inssAuto ? 'Ano ≠ 2026 — calcular manualmente' : ('Tabela 2026 sobre '+brl(baseInssMes)), valor: inssAuto?0:inssMes},
+    {verba:'INSS sobre 13º (base própria)', nat:'9201', devida:!inssAuto, memoria: inssAuto ? 'Ano ≠ 2026 — calcular manualmente' : ('Tabela 2026 sobre '+brl(decimoValor)), valor: inssAuto?0:inss13},
+    {verba:'IRRF', nat:'9203', devida: irrfManual>0, memoria:'Valor informado (folha) ou tabela 2026 (Lei 15.191/2025 + Lei 15.270/2025)', valor: irrfManual},
+    {verba:'Desconto de aviso prévio não cumprido', nat:'6901', devida: descontoAvisoNaoCumprido>0, memoria: descontoAvisoNaoCumprido>0 ? (avisoDias+' dias não cumpridos (art. 487, §2º CLT)') : '—', valor: descontoAvisoNaoCumprido},
+    {verba:'Outros descontos (adiantamento, pensão, consignado)', nat:'9200 · 9213 · 9253/9254 · 9299', devida: outrosDescontos>0, memoria:'Informado manualmente — classifique a natureza conforme o caso (ver Tabela 03 no fim da página)', valor: outrosDescontos},
   ];
 
   const totalProventos = proventos.reduce((s,p)=>s+p.valor,0);
@@ -742,25 +811,29 @@ function calcular(){
 
 function renderResultado(calc){
   const tbody = document.querySelector('#tblResultado tbody');
+  const folhaAntes = valoresFolha();
   tbody.innerHTML = '';
-  function linha(item, tipo){
+  function linha(item, tipo, key){
     const tr = document.createElement('tr');
     if (!item.devida) tr.className='zero';
-    tr.innerHTML = '<td>'+item.verba+' <span class="tag '+(item.devida?'dev':'nao')+'">'+(item.devida?'devida':'não devida')+'</span></td>'+
+    const vAntes = (folhaAntes[key]!==undefined) ? String(folhaAntes[key]) : '';
+    tr.innerHTML = '<td>'+item.verba+' <span class="tag '+(item.devida?'dev':'nao')+'">'+(item.devida?'devida':'não devida')+'</span>'+
+      (item.nat ? ' <span class="tag" style="background:#e8ecf3;color:#1B2A4A" title="Natureza da rubrica — Tabela 03 do eSocial">nat. '+item.nat+'</span>' : '')+'</td>'+
       '<td class="mem">'+item.memoria+'</td>'+
-      '<td class="val">'+(tipo==='desconto' && item.valor>0 ? '- ' : '')+'R$ '+brl(item.valor)+'</td>';
+      '<td class="val">'+(tipo==='desconto' && item.valor>0 ? '- ' : '')+'R$ '+brl(item.valor)+'</td>'+
+      '<td class="val"><input type="number" step="0.01" class="auditIn" data-key="'+key+'" value="'+vAntes+'" placeholder="0,00" style="width:110px;text-align:right"></td>';
     tbody.appendChild(tr);
   }
-  calc.proventos.forEach(p=>linha(p,'provento'));
-  calc.descontos.forEach(d=>linha(d,'desconto'));
+  calc.proventos.forEach((p,i)=>linha(p,'provento','p'+i));
+  calc.descontos.forEach((d,i)=>linha(d,'desconto','d'+i));
   const trSub = document.createElement('tr'); trSub.className='total';
-  trSub.innerHTML = '<td colspan="2">Total de proventos</td><td class="val">R$ '+brl(calc.totalProventos)+'</td>';
+  trSub.innerHTML = '<td colspan="2">Total de proventos</td><td class="val">R$ '+brl(calc.totalProventos)+'</td><td></td>';
   tbody.appendChild(trSub);
   const trDesc = document.createElement('tr'); trDesc.className='total';
-  trDesc.innerHTML = '<td colspan="2">Total de descontos</td><td class="val">- R$ '+brl(calc.totalDescontos)+'</td>';
+  trDesc.innerHTML = '<td colspan="2">Total de descontos</td><td class="val">- R$ '+brl(calc.totalDescontos)+'</td><td></td>';
   tbody.appendChild(trDesc);
   const trLiq = document.createElement('tr'); trLiq.className='total';
-  trLiq.innerHTML = '<td colspan="2">TOTAL LÍQUIDO</td><td class="val">R$ '+brl(calc.totalLiquido)+'</td>';
+  trLiq.innerHTML = '<td colspan="2">TOTAL LÍQUIDO</td><td class="val">R$ '+brl(calc.totalLiquido)+'</td><td></td>';
   tbody.appendChild(trLiq);
 
   document.getElementById('cardResultado').style.display='block';
@@ -771,6 +844,82 @@ document.getElementById('btnCalcular').addEventListener('click', () => {
   const calc = calcular();
   if (calc) renderResultado(calc);
 });
+
+/* ---- Calculadora IRRF 2026 (preenche o campo "IRRF apurado") ---- */
+document.getElementById('btnCalcIrrf').addEventListener('click', () => {
+  const rt = Number(document.getElementById('irrfRendTrib').value)||0;
+  const inss = Number(document.getElementById('irrfInssDeduz').value)||0;
+  const deps = Math.max(0, Math.floor(Number(document.getElementById('irrfDeps').value)||0));
+  const mem = document.getElementById('irrfMemoria');
+  if (rt <= 0){ mem.innerHTML = '<b>Informe o rendimento tributável do mês</b> para calcular o IRRF.'; return; }
+  const r = calcIRRF2026(rt, inss, deps);
+  document.getElementById('irrfManual').value = r.impostoFinal.toFixed(2);
+  mem.innerHTML = '<b>Memória IRRF 2026:</b> base = '+brl(rt)+' − '+brl(inss)+' (INSS) − '+deps+' × 189,59 (dependentes) = <b>'+brl(r.base)+'</b>'
+    + ' · imposto pela tabela (Lei 15.191/2025) = '+brl(r.imposto)
+    + ' · redução Lei 15.270/2025 = '+brl(r.reducao)
+    + ' · <b>IRRF final = R$ '+brl(r.impostoFinal)+'</b> (já lançado no campo "IRRF apurado" — clique em Calcular verbas para aplicar)';
+});
+
+/* ---- Valores da folha (coluna de auditoria) ---- */
+function valoresFolha(){
+  const map = {};
+  document.querySelectorAll('#tblResultado .auditIn').forEach(inp => {
+    if (inp.value !== '' && !isNaN(Number(inp.value))) map[inp.dataset.key] = Number(inp.value);
+  });
+  return map;
+}
+
+function calcComFolha(calc){
+  const vf = valoresFolha();
+  if (!Object.keys(vf).length) return calc;
+  const clone = Object.assign({}, calc);
+  clone.proventos = calc.proventos.map((p,i) => (vf['p'+i]===undefined) ? p
+    : Object.assign({}, p, {valor: vf['p'+i], devida: vf['p'+i]>0.004 ? true : p.devida, memoria: p.memoria+' — valor da folha'}));
+  clone.descontos = calc.descontos.map((d,i) => (vf['d'+i]===undefined) ? d
+    : Object.assign({}, d, {valor: vf['d'+i], devida: vf['d'+i]>0.004 ? true : d.devida, memoria: d.memoria+' — valor da folha'}));
+  clone.totalProventos = clone.proventos.reduce((s,p)=>s+p.valor,0);
+  clone.totalDescontos = clone.descontos.reduce((s,d)=>s+d.valor,0);
+  clone.totalLiquido = clone.totalProventos - clone.totalDescontos;
+  return clone;
+}
+
+/* ---- Calculadora IRRF 2026 (preenche o campo "IRRF apurado") ---- */
+document.getElementById('btnCalcIrrf').addEventListener('click', () => {
+  const rt = Number(document.getElementById('irrfRendTrib').value)||0;
+  const inss = Number(document.getElementById('irrfInssDeduz').value)||0;
+  const deps = Math.max(0, Math.floor(Number(document.getElementById('irrfDeps').value)||0));
+  const mem = document.getElementById('irrfMemoria');
+  if (rt <= 0){ mem.innerHTML = '<b>Informe o rendimento tributável do mês</b> para calcular o IRRF.'; return; }
+  const r = calcIRRF2026(rt, inss, deps);
+  document.getElementById('irrfManual').value = r.impostoFinal.toFixed(2);
+  mem.innerHTML = '<b>Memória IRRF 2026:</b> base = '+brl(rt)+' − '+brl(inss)+' (INSS) − '+deps+' × 189,59 (dependentes) = <b>'+brl(r.base)+'</b>'
+    + ' · imposto pela tabela (Lei 15.191/2025) = '+brl(r.imposto)
+    + ' · redução Lei 15.270/2025 = '+brl(r.reducao)
+    + ' · <b>IRRF final = R$ '+brl(r.impostoFinal)+'</b> (já lançado no campo "IRRF apurado" — clique em Calcular verbas para aplicar)';
+});
+
+/* ---- Valores da folha (coluna de auditoria) ---- */
+function valoresFolha(){
+  const map = {};
+  document.querySelectorAll('#tblResultado .auditIn').forEach(inp => {
+    if (inp.value !== '' && !isNaN(Number(inp.value))) map[inp.dataset.key] = Number(inp.value);
+  });
+  return map;
+}
+
+function calcComFolha(calc){
+  const vf = valoresFolha();
+  if (!Object.keys(vf).length) return calc;
+  const clone = Object.assign({}, calc);
+  clone.proventos = calc.proventos.map((p,i) => (vf['p'+i]===undefined) ? p
+    : Object.assign({}, p, {valor: vf['p'+i], devida: vf['p'+i]>0.004 ? true : p.devida, memoria: p.memoria+' — valor da folha'}));
+  clone.descontos = calc.descontos.map((d,i) => (vf['d'+i]===undefined) ? d
+    : Object.assign({}, d, {valor: vf['d'+i], devida: vf['d'+i]>0.004 ? true : d.devida, memoria: d.memoria+' — valor da folha'}));
+  clone.totalProventos = clone.proventos.reduce((s,p)=>s+p.valor,0);
+  clone.totalDescontos = clone.descontos.reduce((s,d)=>s+d.valor,0);
+  clone.totalLiquido = clone.totalProventos - clone.totalDescontos;
+  return clone;
+}
 
 /* =====================================================================
    TEMPLATES DE DOCUMENTO (padrão Mury — navy/dourado, base memorandos)
@@ -873,10 +1022,10 @@ function preencher(tpl, dados){
 function linhasTabelaDoc(calc){
   let linhas = '';
   calc.proventos.filter(p=>p.devida && p.valor>0.004).forEach(p=>{
-    linhas += '<tr><td>'+p.verba+'</td><td>'+p.memoria+'</td><td class="num">R$ '+brl(p.valor)+'</td></tr>';
+    linhas += '<tr><td style="white-space:nowrap">'+(p.nat||'&mdash;')+'</td><td>'+p.verba+'</td><td>'+p.memoria+'</td><td class="num">R$ '+brl(p.valor)+'</td></tr>';
   });
   calc.descontos.filter(d=>d.devida && d.valor>0.004).forEach(d=>{
-    linhas += '<tr><td>'+d.verba+'</td><td>'+d.memoria+'</td><td class="num">- R$ '+brl(d.valor)+'</td></tr>';
+    linhas += '<tr><td style="white-space:nowrap">'+(d.nat||'&mdash;')+'</td><td>'+d.verba+'</td><td>'+d.memoria+'</td><td class="num">- R$ '+brl(d.valor)+'</td></tr>';
   });
   return linhas;
 }
@@ -957,10 +1106,11 @@ function gerarAcordo(calc){
       <div class="section-title">Das Verbas Rescis&oacute;rias</div>
       <table class="info-table">
         <caption>Verbas apuradas na rescis&atilde;o</caption>
-        <thead><tr><th>Verba</th><th>Base de c&aacute;lculo</th><th style="text-align:right">Valor</th></tr></thead>
+        <thead><tr><th>Nat.</th><th>Verba</th><th>Base de c&aacute;lculo</th><th style="text-align:right">Valor</th></tr></thead>
         <tbody>{{LINHAS_TABELA}}</tbody>
-        <tfoot><tr><td colspan="2">TOTAL L&Iacute;QUIDO</td><td class="num">R$ {{TOTAL_LIQUIDO}}</td></tr></tfoot>
+        <tfoot><tr><td colspan="3">TOTAL L&Iacute;QUIDO</td><td class="num">R$ {{TOTAL_LIQUIDO}}</td></tr></tfoot>
       </table>
+      <div style="font-size:8px;color:#666;margin-top:4px">Nat. = c&oacute;digo de natureza da rubrica conforme a Tabela 03 do eSocial.</div>
       <div class="highlight-box"><strong>1.1.</strong> O valor l&iacute;quido total desta rescis&atilde;o &eacute; de <strong>R$ {{TOTAL_LIQUIDO}} ({{TOTAL_EXTENSO}})</strong>.</div>
     </div>
 
@@ -1051,10 +1201,11 @@ function gerarRecibo(calc){
       <div class="section-tag">Verbas</div>
       <div class="section-title">Discrimina&ccedil;&atilde;o dos Valores</div>
       <table class="info-table">
-        <thead><tr><th>Verba</th><th>Base de c&aacute;lculo</th><th style="text-align:right">Valor</th></tr></thead>
+        <thead><tr><th>Nat.</th><th>Verba</th><th>Base de c&aacute;lculo</th><th style="text-align:right">Valor</th></tr></thead>
         <tbody>{{LINHAS_TABELA}}</tbody>
-        <tfoot><tr><td colspan="2">TOTAL L&Iacute;QUIDO RECEBIDO</td><td class="num">R$ {{TOTAL_LIQUIDO}}</td></tr></tfoot>
+        <tfoot><tr><td colspan="3">TOTAL L&Iacute;QUIDO RECEBIDO</td><td class="num">R$ {{TOTAL_LIQUIDO}}</td></tr></tfoot>
       </table>
+      <div style="font-size:8px;color:#666;margin-top:4px">Nat. = c&oacute;digo de natureza da rubrica conforme a Tabela 03 do eSocial.</div>
     </div>
 
     <div class="section-block closing-anchor">
@@ -1154,14 +1305,15 @@ function gerarDemonstrativo(calc){
       <div class="section-tag">Valores</div>
       <div class="section-title">Discrimina&ccedil;&atilde;o das Verbas</div>
       <table class="info-table">
-        <thead><tr><th>Verba</th><th>Base de c&aacute;lculo</th><th style="text-align:right">Valor</th></tr></thead>
+        <thead><tr><th>Nat.</th><th>Verba</th><th>Base de c&aacute;lculo</th><th style="text-align:right">Valor</th></tr></thead>
         <tbody>{{LINHAS_TABELA}}</tbody>
         <tfoot>
-          <tr><td colspan="2">Total de proventos</td><td class="num">R$ {{TOTAL_PROVENTOS}}</td></tr>
-          <tr><td colspan="2">Total de descontos</td><td class="num">- R$ {{TOTAL_DESCONTOS}}</td></tr>
-          <tr><td colspan="2">TOTAL L&Iacute;QUIDO</td><td class="num">R$ {{TOTAL_LIQUIDO}}</td></tr>
+          <tr><td colspan="3">Total de proventos</td><td class="num">R$ {{TOTAL_PROVENTOS}}</td></tr>
+          <tr><td colspan="3">Total de descontos</td><td class="num">- R$ {{TOTAL_DESCONTOS}}</td></tr>
+          <tr><td colspan="3">TOTAL L&Iacute;QUIDO</td><td class="num">R$ {{TOTAL_LIQUIDO}}</td></tr>
         </tfoot>
       </table>
+      <div style="font-size:8px;color:#666;margin-top:4px">Nat. = c&oacute;digo de natureza da rubrica conforme a Tabela 03 do eSocial.</div>
       <div class="highlight-box">Valor l&iacute;quido apurado: <strong>R$ {{TOTAL_LIQUIDO}} ({{TOTAL_EXTENSO}})</strong>.</div>
     </div>
 
@@ -1201,6 +1353,122 @@ function gerarDemonstrativo(calc){
   return preencher(html, dados);
 }
 
+function gerarAuditoria(calc){
+  const vf = valoresFolha();
+  const dados = montarDadosComuns(calc);
+  dados.MODALIDADE_NOME = MODALIDADE_NOME[calc.modalidade] || calc.modalidade;
+  dados.DATA_EMISSAO = fmtBR(new Date());
+  let linhas = '', conferem = 0, divergem = 0, naoInformadas = 0, impactoLiquido = 0;
+  function linhaAud(item, key, tipo){
+    const rec = item.valor;
+    const inf = vf[key];
+    if (!item.devida && inf===undefined) return;
+    let difCel, sitCel;
+    if (inf === undefined){
+      naoInformadas++;
+      difCel = '&mdash;';
+      sitCel = '<span style="color:#8a8a8a">N&atilde;o informado</span>';
+    } else {
+      const dif = inf - rec;
+      impactoLiquido += (tipo==='provento' ? dif : -dif);
+      const ok = Math.abs(dif) <= 0.01;
+      if (ok){ conferem++; sitCel = '<strong style="color:#2e7d32">Confere</strong>'; }
+      else { divergem++; sitCel = '<strong style="color:#b3261e">Divergente</strong>'; }
+      difCel = ok ? 'R$ 0,00' : (dif>0?'+ ':'&minus; ')+'R$ '+brl(Math.abs(dif));
+    }
+    linhas += '<tr><td style="white-space:nowrap">'+(item.nat||'&mdash;')+'</td><td>'+item.verba+(tipo==='desconto'?' <em>(desconto)</em>':'')+'</td>'
+      + '<td class="num">R$ '+brl(rec)+'</td>'
+      + '<td class="num">'+(inf===undefined?'&mdash;':('R$ '+brl(inf)))+'</td>'
+      + '<td class="num">'+difCel+'</td><td>'+sitCel+'</td></tr>';
+  }
+  calc.proventos.forEach((p,i)=>linhaAud(p,'p'+i,'provento'));
+  calc.descontos.forEach((d,i)=>linhaAud(d,'d'+i,'desconto'));
+  dados.LINHAS_AUDITORIA = linhas;
+  dados.AUD_RESUMO = conferem+' verba(s) conferem, '+divergem+' divergente(s), '+naoInformadas+' n&atilde;o informada(s).';
+  dados.AUD_IMPACTO = (divergem>0)
+    ? 'Impacto l&iacute;quido das diverg&ecirc;ncias (folha &minus; rec&aacute;lculo): <strong>'+(impactoLiquido<0?'&minus; ':'')+'R$ '+brl(Math.abs(impactoLiquido))+'</strong> no valor l&iacute;quido devido ao(&agrave;) empregado(a).'
+    : 'Nenhuma diverg&ecirc;ncia aritm&eacute;tica encontrada nas verbas informadas.';
+  const html = `<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="UTF-8"><title>Relat&oacute;rio de Auditoria de Rescis&atilde;o &mdash; {{FUNC_NOME}}</title>
+<style>${CSS_DOC}</style></head><body contenteditable="true">
+<div class="page">
+  <div class="doc-header">
+    <div class="brand"><div class="brand-name">Mury &middot; Assessoria Cont&aacute;bil</div><div class="brand-sub">Consultoria Trabalhista &amp; Departamento Pessoal</div></div>
+    <div><div class="doc-type">Relat&oacute;rio de Auditoria de Rescis&atilde;o</div><div class="doc-sub">Confer&ecirc;ncia aritm&eacute;tica &mdash; folha &times; rec&aacute;lculo</div></div>
+  </div>
+  <div class="gold-line"></div>
+  <div class="doc-body">
+
+    <div class="section-block">
+      <div class="section-tag">Identifica&ccedil;&atilde;o</div>
+      <div class="section-title">Confer&ecirc;ncia de Verbas Rescis&oacute;rias</div>
+      <div class="id-block">
+        <div class="id-section-label">&#9658; Empregadora</div>
+        <div class="id-grid">
+          <div class="id-field"><label>Raz&atilde;o Social</label><div class="val campo">{{EMP_RAZAO}}</div></div>
+          <div class="id-field"><label>CNPJ</label><div class="val campo">{{EMP_CNPJ}}</div></div>
+        </div>
+        <hr class="id-divider"/>
+        <div class="id-section-label">&#9658; Empregado(a)</div>
+        <div class="id-grid">
+          <div class="id-field"><label>Nome</label><div class="val campo">{{FUNC_NOME}}</div></div>
+          <div class="id-field"><label>CPF</label><div class="val campo">{{FUNC_CPF}}</div></div>
+        </div>
+        <div class="id-grid-3">
+          <div class="id-field"><label>Cargo</label><div class="val campo">{{FUNC_CARGO}}</div></div>
+          <div class="id-field"><label>Admiss&atilde;o</label><div class="val campo">{{DATA_ADMISSAO}}</div></div>
+          <div class="id-field"><label>Desligamento</label><div class="val campo">{{DATA_DESLIGAMENTO}}</div></div>
+        </div>
+        <hr class="id-divider"/>
+        <div class="id-grid">
+          <div class="id-field"><label>Modalidade de desligamento</label><div class="val">{{MODALIDADE_NOME}}</div></div>
+          <div class="id-field"><label>Data da confer&ecirc;ncia</label><div class="val">{{DATA_EMISSAO}}</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-block">
+      <div class="section-tag">Comparativo</div>
+      <div class="section-title">Valores da Folha &times; Rec&aacute;lculo</div>
+      <table class="info-table">
+        <thead><tr><th>Nat.</th><th>Verba</th><th style="text-align:right">Rec&aacute;lculo</th><th style="text-align:right">Folha</th><th style="text-align:right">Diferen&ccedil;a</th><th>Situa&ccedil;&atilde;o</th></tr></thead>
+        <tbody>{{LINHAS_AUDITORIA}}</tbody>
+      </table>
+      <div style="font-size:8px;color:#666;margin-top:4px">Nat. = c&oacute;digo de natureza da rubrica conforme a Tabela 03 do eSocial. Toler&acirc;ncia de arredondamento: R$ 0,01.</div>
+      <div class="highlight-box">{{AUD_RESUMO}} {{AUD_IMPACTO}}</div>
+    </div>
+
+    <div class="section-block">
+      <div class="section-tag">Alcance</div>
+      <div class="section-title">Limites desta Confer&ecirc;ncia</div>
+      <div class="alert-box closing-anchor">
+        <div class="alert-label">Aviso</div>
+        <div class="alert-text">Relat&oacute;rio de confer&ecirc;ncia aritm&eacute;tica dos valores informados da folha contra o rec&aacute;lculo desta ferramenta. N&atilde;o avalia classifica&ccedil;&atilde;o de rubricas, incid&ecirc;ncias de INSS/FGTS/IRRF verba a verba, m&eacute;dias de vari&aacute;veis, nem regras de CCT/ACT da categoria &mdash; essa an&aacute;lise completa &eacute; feita pelo responsável t&eacute;cnico da Mury. Documento de uso interno; n&atilde;o substitui o TRCT nem os registros do eSocial.</div>
+      </div>
+    </div>
+
+    <div class="section-block closing-anchor">
+      <div class="section-tag">Confer&ecirc;ncia</div>
+      <div class="section-title">Respons&aacute;vel</div>
+      <div class="sig-area">
+        <div class="sig-date-line campo">_____________, {{DATA_EMISSAO}}.</div>
+        <div class="sig-row one">
+          <div class="sig-block"><div class="sig-line"></div><div class="sig-name">Departamento Pessoal &mdash; Mury Assessoria Cont&aacute;bil</div><div class="sig-role">Respons&aacute;vel pela confer&ecirc;ncia</div></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div class="logo-footer"><div class="logo-text">mury</div><div class="logo-tagline">Solu&ccedil;&otilde;es de Qualidade</div></div>
+  <div class="doc-footer">
+    <div class="f-address">Rua Ipiranga, 155 &mdash; Centro &mdash; S&atilde;o Louren&ccedil;o &mdash; MG<br/>Mury &middot; Assessoria Cont&aacute;bil</div>
+    <div class="f-contact">grupomury.com.br<br/>pessoal.ia.sl@grupomury.com.br</div>
+  </div>
+</div>
+</body></html>`;
+  return preencher(html, dados);
+}
+
 let DOC_HTML_ATUAL = '';
 const docFrame = document.getElementById('docFrame');
 
@@ -1224,13 +1492,20 @@ function avisarCamposPendentes(){
 function mostrarDocumento(tipo){
   if (!ULTIMO_CALCULO){ alert('Calcule as verbas primeiro.'); return; }
   avisarCamposPendentes();
-  DOC_HTML_ATUAL = tipo==='acordo' ? gerarAcordo(ULTIMO_CALCULO)
-    : (tipo==='recibo' ? gerarRecibo(ULTIMO_CALCULO) : gerarDemonstrativo(ULTIMO_CALCULO));
+  if (tipo === 'auditoria'){
+    DOC_HTML_ATUAL = gerarAuditoria(ULTIMO_CALCULO);
+  } else {
+    const usarFolha = document.getElementById('chkUsarFolha').checked;
+    const calc = usarFolha ? calcComFolha(ULTIMO_CALCULO) : ULTIMO_CALCULO;
+    DOC_HTML_ATUAL = tipo==='acordo' ? gerarAcordo(calc)
+      : (tipo==='recibo' ? gerarRecibo(calc) : gerarDemonstrativo(calc));
+  }
   docFrame.srcdoc = DOC_HTML_ATUAL;
 }
 document.getElementById('btnAcordo').addEventListener('click', () => mostrarDocumento('acordo'));
 document.getElementById('btnRecibo').addEventListener('click', () => mostrarDocumento('recibo'));
 document.getElementById('btnDemonstrativo').addEventListener('click', () => mostrarDocumento('demonstrativo'));
+document.getElementById('btnAuditoria').addEventListener('click', () => mostrarDocumento('auditoria'));
 
 document.getElementById('btnImprimir').addEventListener('click', () => {
   if (!docFrame.contentWindow){ alert('Gere o documento primeiro.'); return; }
@@ -1252,6 +1527,220 @@ document.getElementById('btnBaixar').addEventListener('click', () => {
   a.download = 'rescisao-'+nomeFunc+'.html';
   a.click();
 });
+
+/* =====================================================================
+   TABELA 03 DO eSOCIAL — NATUREZA DAS RUBRICAS (consulta com filtro)
+   ===================================================================== */
+const TABELA_RUBRICAS = [
+["1000","Salário, vencimento, soldo","Corresponde ao salário básico contratual do empregado contratado de acordo com a CLT e o vencimento mensal do servidor público e do militar"],
+["1001","Subsídio","Corresponde à remuneração paga na forma de subsídio"],
+["1003","Horas extraordinárias","Valor correspondente à hora extraordinária de trabalho, acrescido de percentual de no mínimo 50%"],
+["1004","Horas extraordinárias - Banco de horas","Valor correspondente a pagamento das horas extraordinárias, inicialmente destinadas para o banco de horas e que não foram compensadas"],
+["1005","Direito de arena","Valores relativos a direito de arena decorrente do espetáculo, devidos ao atleta"],
+["1006","Intervalos intra e inter jornadas não concedidos","Valores relativos a intervalos não concedidos de intrajornada ou interjornada"],
+["1007","Luvas e premiações","Valores correspondentes a prêmios e luvas, devidos ao atleta"],
+["1009","Salário-família - Complemento","Valor excedente ao do fixado pela previdência social para o salário-família"],
+["1010","Salário in natura - Pagos em bens ou serviços","Salário in natura, também conhecido por salário utilidade, correspondente a remunerações pagas em bens ou serviços"],
+["1011","Sobreaviso e prontidão","Valor correspondente a um percentual da hora normal de trabalho"],
+["1012","Descanso semanal remunerado - DSR e feriado","Valores correspondentes a DSR e feriado: a) devidos a trabalhadores cuja remuneração não inclua o pagamento do descanso semanal remunerado (horistas, diaristas, semanalistas etc.); b) incidentes sobre parcelas salariais de natureza variável, tais como tarefa, horas extras, adicional noturno, produção, comissão etc.; c) devidos a trabalhadores que prestaram serviços nos dias de repouso semanal e feriado"],
+["1015","Adiantamento de férias","Valor correspondente ao pagamento do adiantamento da remuneração de férias, inclusive do terço constitucional"],
+["1016","Férias","Valor correspondente à remuneração devida na época da concessão das férias. Nessa natureza deve ser classificado também o valor pago mensalmente ao trabalhador avulso e ao empregado com contrato de trabalho intermitente, a título de férias"],
+["1017","Terço constitucional de férias","Valor correspondente ao terço constitucional de férias relativo à remuneração devida na época da concessão das férias. Nessa natureza deve ser classificado também o valor pago mensalmente ao trabalhador avulso e ao empregado com contrato de trabalho intermitente, a título de terço constitucional de férias"],
+["1018","Férias - Abono ou gratificação de férias superior a 20 dias","Remuneração a título de abono de férias, desde que excedente a 20 (vinte) dias do salário e concedido em virtude de cláusula contratual, do regulamento da empresa, de convenção ou acordo coletivo, como por exemplo, o art. 144 da CLT"],
+["1019","Terço constitucional de férias - Abono ou gratificação de férias superior a 20 dias","Terço constitucional de férias incidente sobre remuneração a título de abono de férias, desde que excedente a 20 (vinte) dias do salário e concedido em virtude de cláusula contratual, do regulamento da empresa, de convenção ou acordo coletivo, como por exemplo, o art. 144 da CLT"],
+["1022","Férias - Abono ou gratificação de férias não excedente a 20 dias","Remuneração a título de abono de férias, desde que não excedente a 20 (vinte) dias do salário e concedido em virtude de cláusula contratual, do regulamento da empresa, de convenção ou acordo coletivo, como por exemplo o art. 144 da CLT"],
+["1023","Férias - Abono pecuniário","Valor correspondente a conversão em dinheiro de parte dos dias de férias a que o trabalhador adquiriu direito, inclusive o adicional constitucional"],
+["1024","Férias - Dobro na vigência do contrato","Valor correspondente a remuneração a que faz jus na época da concessão das férias, concedidas após o prazo de concessão, inclusive o adicional constitucional"],
+["1040","Licença-prêmio","Valor relativo a licença-prêmio, em decorrência de afastamento do trabalho"],
+["1041","Licença-prêmio indenizada","Valor correspondente à conversão em dinheiro da licença-prêmio"],
+["1050","Remuneração de dias de afastamento","Remuneração de dias nos quais o trabalhador esteja afastado do trabalho sem prejuízo de sua remuneração"],
+["1080","Stock option","Remuneração pelo exercício de opção de compra de ações da empresa"],
+["1099","Outras verbas salariais","Outras verbas salariais/remuneratórias não previstas nos demais itens"],
+["1201","Adicional de função / cargo confiança","Adicional ou gratificação concedida em virtude de cargo ou função de confiança"],
+["1202","Adicional de insalubridade","Adicional por serviços em condições de insalubridade"],
+["1203","Adicional de periculosidade","Adicional por serviços em condições perigosas"],
+["1204","Adicional de transferência","Adicional em razão de transferência de trabalhador, enquanto durar a transferência"],
+["1205","Adicional noturno","Adicional por trabalho em horário noturno"],
+["1206","Adicional por tempo de serviço","Adicional em virtude do tempo de serviço (anuênio, quinquênio, etc.)"],
+["1207","Comissões, porcentagens, produção","Valor correspondente a contraprestação de serviço, normalmente baseada em um percentual sobre as vendas totais desse trabalhador"],
+["1208","Gueltas ou gorjetas - Repassadas por fornecedores ou clientes","Valores pagos diretamente por fornecedores a trabalhador a título de incentivos de vendas (gueltas) ou por clientes a título de recompensa por bons serviços prestados (gorjetas)"],
+["1209","Gueltas ou gorjetas - Repassadas pelo empregador","Valores pagos relativos a gueltas ou gorjetas, por meio de repasse ao empregador"],
+["1210","Gratificação por acordo ou convenção coletiva","Verba estabelecida em acordo ou convenção coletiva de trabalho"],
+["1211","Gratificações","Verba não estabelecida em acordo ou convenção coletiva, mas paga para o empregado em decorrência de ajuste entre as partes ou por liberalidade do empregador, como por exemplo produtividade, assiduidade, etc."],
+["1212","Gratificações ou outras verbas de natureza permanente","Órgão público - Parcelas remuneratórias reconhecidamente inerentes às funções do cargo efetivo, cujo valor integra a remuneração do cargo efetivo"],
+["1213","Gratificações ou outras verbas de natureza transitória","Órgão público - Parcelas remuneratórias vinculadas à atividade cujo recebimento dependa de avaliação de desempenho ou determinadas condições"],
+["1214","Adicional de penosidade","Adicional pela realização de atividade árdua que exija do trabalhador esforço, atenção ou vigilância acima do comum"],
+["1215","Adicional de unidocência","Adicional de unidocência para professores de 1ª a 4ª série"],
+["1216","Adicional de localidade","Adicional pela realização de atividade em localidade transfronteiriça"],
+["1217","Gratificação de curso/concurso","Verba de natureza remuneratória por atividade exercida em curso/concurso"],
+["1225","Quebra de caixa","Valor destinado a cobrir os riscos assumidos por quem trabalha com manuseio de valores, para compensar eventuais descontos ou diferenças de numerários"],
+["1230","Remuneração do dirigente sindical","Remuneração paga ao trabalhador afastado, durante o exercício da atividade sindical"],
+["1299","Outros adicionais","Valores relativos a outros adicionais não previstos nos demais itens"],
+["1300","PLR - Participação em Lucros ou Resultados","Valor correspondente a participação em lucros ou resultados da empresa, de acordo com lei específica"],
+["1350","Bolsa de estudo - Estagiário","Valor devido ao estagiário em atividades práticas de complementação do currículo escolar, inclusive os valores pagos a título de recesso remunerado - Lei 11.788/2008"],
+["1351","Bolsa de estudo - Médico residente","Bolsa de estudo ao médico residente"],
+["1352","Bolsa de estudo ou pesquisa","Remuneração a professores, pesquisadores e demais profissionais com a finalidade de estudos ou pesquisa, exceto pagamentos a estagiário e médico-residente"],
+["1401","Abono","Qualquer abono concedido de forma espontânea ou em virtude de acordo ou convenção coletiva, norma, etc."],
+["1402","Abono PIS/PASEP","Abono e/ou rendimento do PIS/PASEP repassado pelo empregador ou órgão público"],
+["1403","Abono legal","As importâncias recebidas a título de ganhos eventuais e os abonos expressamente desvinculados do salário, por força da lei"],
+["1404","Auxílio babá","Valor relativo a reembolso de despesas com babá, limitado ao menor salário de contribuição mensal e condicionado à comprovação do registro na carteira de trabalho e previdência social da empregada, do pagamento da remuneração e do recolhimento da contribuição previdenciária, pago em conformidade com a legislação trabalhista, observado o limite máximo de 6 (seis) anos de idade da criança (caso haja previsão em acordo coletivo da categoria, este limite de idade poderá ser maior)"],
+["1405","Assistência médica","Valor pago diretamente ao trabalhador a título de assistência médica ou odontológica, inclusive o reembolso de despesas com medicamentos, óculos, aparelhos ortopédicos, despesas médico-hospitalares e outras similares"],
+["1406","Auxílio-creche","O reembolso creche pago em conformidade com a legislação trabalhista, observado o limite máximo de 6 (seis) anos de idade da criança, quando devidamente comprovadas as despesas realizadas. Caso haja previsão em acordo coletivo da categoria, este limite de idade poderá ser maior"],
+["1407","Auxílio-educação","Valor relativo a plano educacional, ou bolsa de estudo, que vise à educação básica de trabalhadores e seus dependentes e, desde que vinculada às atividades desenvolvidas pela empresa, à educação profissional e tecnológica de trabalhadores, nos termos da Lei 9.394/1996, e: 1) não seja utilizado em substituição de parcela salarial; 2) o valor mensal do plano educacional ou bolsa de estudo, considerado individualmente, não ultrapasse 5% (cinco por cento) da remuneração do segurado a que se destina ou o valor correspondente a uma vez e meia o valor do limite mínimo mensal do salário de contribuição, o que for maior"],
+["1409","Salário-família","Valor do salário-família, conforme limite legal, em virtude do número de filhos menores de 14 anos, ou inválidos de qualquer idade"],
+["1410","Auxílio - Locais de difícil acesso","Valor correspondente a transporte, habitação e alimentação fornecido ao trabalhador contratado para prestar serviço em localidade distante da sua residência, em canteiro de obras ou local que, por força da atividade, exija deslocamento e estada"],
+["1411","Auxílio-natalidade","Valor relativo ao nascimento do filho de servidor público, previsto em lei"],
+["1412","Abono permanência","Valor relativo ao abono de permanência, de acordo com a CF/1988"],
+["1601","Ajuda de custo - Aeronauta","Adicional mensal recebidos pelo aeronauta, nos termos da Lei 5.929/1973"],
+["1602","Ajuda de custo de transferência","Ajuda de custo em parcela única, em razão de transferência de local de trabalho"],
+["1603","Ajuda de custo","Ajuda de custo paga ao trabalhador"],
+["1619","Ajuda compensatória - Lei 14.020/2020","Ajuda compensatória paga pelo empregador ao empregado durante período de suspensão do contrato de trabalho ou redução proporcional de salário e jornada, nos termos da Lei 14.020/2020 (conversão da MP 936/2020)"],
+["1620","Ressarcimento de despesas pelo uso de veículo próprio","Ressarcimento de despesas ao trabalhador, pela utilização de veículo de sua propriedade"],
+["1621","Ressarcimento de despesas de viagem, exceto despesas com veículos","Ressarcimento de despesas pagas com recursos do trabalhador em viagens a trabalho"],
+["1623","Ressarcimento de provisão","Ressarcimento de desconto efetuado em recibos de férias relativo a provisão de contribuição previdenciária"],
+["1629","Ressarcimento de outras despesas","Ressarcimento de outras despesas pagas pelo trabalhador, não previstas nos demais itens"],
+["1650","Diárias de viagem","Diárias de viagem ao trabalhador"],
+["1799","Alimentação concedida em pecúnia com caráter indenizatório","Auxílio-alimentação ou alimentação concedida sob a forma de pecúnia com natureza indenizatória por força de lei"],
+["1800","Alimentação concedida em pecúnia com caráter salarial","Alimentação concedida sob a forma de pecúnia com natureza salarial"],
+["1802","Etapas (marítimos)","Auxílio-alimentação ao trabalhador marítimo"],
+["1805","Moradia","Auxílio-moradia"],
+["1806","Alimentação em ticket ou cartão, vinculada ao PAT","Alimentação concedida sob a forma de ticket ou cartão, por empresa vinculada ao Programa de Alimentação do Trabalhador - PAT"],
+["1807","Alimentação em ticket ou cartão, não vinculada ao PAT","Alimentação concedida sob a forma de ticket ou cartão, por empresa não vinculada ao PAT"],
+["1808","Cesta básica ou refeição, vinculada ao PAT","Alimentação concedida sob a forma de cesta básica ou refeição, por empresa vinculada ao PAT"],
+["1809","Cesta básica ou refeição, não vinculada ao PAT","Alimentação concedida sob a forma de cesta básica ou refeição, por empresa não vinculada ao PAT"],
+["1810","Vale-transporte ou auxílio-transporte com caráter indenizatório","Vale-transporte ou auxílio-transporte com natureza indenizatória por força de lei"],
+["1811","Auxílio-transporte ou auxílio-combustível com caráter salarial","Auxílio-transporte, pago em pecúnia ou de outra forma, com natureza salarial"],
+["1899","Outros auxílios","Valores relativos a outros auxílios não previstos nos demais itens"],
+["1901","Juros e/ou atualização monetária","Juros e/ou atualização monetária devidos pelo atraso no pagamento de valores por exercício de emprego, cargo ou função"],
+["2501","Prêmios","Liberalidades concedidas pelo empregador em forma de bens, serviços ou valor em dinheiro a empregado ou a grupo de empregados, em razão de desempenho superior ao ordinariamente esperado no exercício de suas atividades"],
+["2510","Direitos autorais e intelectuais","Valor correspondente a participação em produção científica, intelectual ou artística"],
+["2801","Quarentena remunerada","Valor equivalente a remuneração se em exercício estivesse, devida ao trabalhador desligado, em período de quarentena"],
+["2901","Empréstimos","Empréstimos ao trabalhador para posterior desconto"],
+["2903","Vestuário e equipamentos","Valor correspondente a vestuários, equipamentos e outros acessórios quando esses se constituírem em salário utilidade"],
+["2930","Insuficiência de saldo","Valor lançado em folha de pagamento para cobertura de excesso de descontos em relação a vencimentos, tanto o valor do vencimento no mês em que houver a insuficiência de saldo, como o respectivo desconto no(s) mês(es) posteriores"],
+["2999","Arredondamentos","Valor lançado em folha de pagamento, não superior a 99 centavos, relativo a arrendamentos"],
+["3501","Remuneração por prestação de serviços","Remuneração (inclusive adiantamentos) a contribuintes individuais, inclusive honorários, em trabalhos de natureza eventual e sem vínculo trabalhista"],
+["3505","Retiradas (pró-labore) de diretores empregados","Pró-labore ou retirada (remuneração) a diretores empregados (CLT)"],
+["3506","Retiradas (pró-labore) de diretores não empregados","Pró-labore ou retirada (remuneração) a diretores não empregados"],
+["3508","Retiradas (pró-labore) de proprietários ou sócios","Pró-labore ou retirada (remuneração) a proprietários ou sócios da empresa"],
+["3509","Honorários a conselheiros","Valor correspondente a honorários pagos a membros de conselho"],
+["3510","Gratificação (jeton)","Valor correspondente a gratificação (jeton) por comparecimento a sessões ou reuniões"],
+["3511","Gratificação eleitoral","Valor correspondente ao exercício da atividade pelo juiz eleitoral"],
+["3520","Remuneração de cooperado","Remuneração a cooperado vinculado a cooperativa de trabalho"],
+["3525","Côngruas, prebendas e afins","Valores pagos a ministros de confissão religiosa e que independem de natureza e da quantidade do trabalho executado"],
+["4010","Complementação salarial de auxílio-doença","Complementação salarial de auxílio-doença ao trabalhador afastado por acidente de trabalho ou por doença"],
+["4011","Complemento de salário-mínimo - RPPS","Valor correspondente à diferença entre o salário-mínimo e o valor do vencimento do cargo efetivo pago a servidor público vinculado a Regime Próprio de Previdência Social - RPPS"],
+["4050","Salário-maternidade","Remuneração mensal da trabalhadora empregada durante a licença maternidade, quando paga pelo contratante ou órgão público"],
+["4051","Salário-maternidade - 13° salário","Valor correspondente ao 13° salário pago pelo contratante ou órgão público, no período de licença maternidade"],
+["5001","13º salário","Valor relativo ao 13° salário de trabalhador, inclusive as médias de 13° salário (horas extras, adicional noturno, etc.), exceto se relativo à primeira parcela ou se pago em rescisão contratual – nessa opção deve ser classificado também o valor pago mensalmente ao trabalhador avulso e ao empregado com contrato de trabalho intermitente, a título de 13° salário"],
+["5005","13° salário complementar","Valor do 13° salário complementar relativo a diferenças apuradas não consideradas na folha de fechamento do 13° salário"],
+["5501","Adiantamento de salário","Valor relativo a adiantamento, antecipação ou pagamento parcial de folha de salários"],
+["5504","13º salário - Adiantamento","Valor relativo a adiantamento do 13° salário"],
+["5510","Adiantamento de benefícios previdenciários","Valor relativo a adiantamento de benefícios a serem pagos pela Previdência Social Oficial"],
+["6000","Saldo de salários na rescisão contratual","Valor correspondente aos dias trabalhados no mês da rescisão contratual"],
+["6001","13º salário relativo ao aviso prévio indenizado","Valor correspondente ao 13° salário incidente sobre o aviso prévio indenizado"],
+["6002","13° salário proporcional na rescisão","Valor correspondente ao 13° salário proporcional pago na rescisão do contrato de trabalho, exceto o pago sobre o aviso prévio indenizado"],
+["6003","Indenização compensatória do aviso prévio","Valor da maior remuneração do trabalhador, correspondente ao número de dias relativo ao aviso prévio, calculado de acordo com o tempo de serviço do empregado"],
+["6004","Férias - Dobro na rescisão","Valor correspondente a remuneração a que faz jus a época da rescisão contratual, correspondente a férias não concedidas no prazo legal, inclusive o adicional constitucional"],
+["6006","Férias proporcionais","Valor correspondente a 1/12 avos da remuneração a que faz jus a época da rescisão contratual, fração superior a 14 dias por mês de trabalho e a projeção do aviso prévio indenizado, inclusive o adicional constitucional"],
+["6007","Férias vencidas na rescisão","Valor correspondente a remuneração a que faz jus a época da rescisão contratual, correspondente a férias vencidas, mas dentro do prazo concessivo, inclusive o adicional constitucional"],
+["6101","Indenização compensatória - Multa rescisória 20 ou 40% (CF/88)","Valor correspondente à indenização por demissão sem justa causa, por culpa recíproca ou força maior (ambas reconhecidas pela Justiça do Trabalho) ou por acordo entre empregado e empregador, quando da rescisão do contrato de trabalho; ou correspondente à antecipação da multa rescisória do FGTS paga ao empregado com contrato Verde e Amarelo"],
+["6102","Indenização do art. 9º da Lei 7.238/1984","Valor correspondente a indenização quando a dispensa ocorrer sem justa causa dentro dos trinta dias que antecedem a data base"],
+["6103","Indenização do art. 14 da Lei 5.889/1973","Valor correspondente a indenização do tempo de serviço ao safrista, importância correspondente a 1/12 (um doze avos) do salário mensal, por mês de serviço ou fração superior a 14 (quatorze) dias"],
+["6104","Indenização do art. 479 da CLT","Valor correspondente a metade da remuneração devida ate o termino do contrato a prazo determinado em caso de rescisão antecipada"],
+["6105","Indenização recebida a título de incentivo a demissão","Valor correspondente a incentivo a demissão em Programas de Demissão Voluntária - PDV"],
+["6106","Multa do art. 477 da CLT","Valor devido ao trabalhador por atraso no pagamento de rescisão do contrato de trabalho (art. 477 da CLT, § 8º)"],
+["6107","Indenização por quebra de estabilidade","Valor correspondente a indenização por desligamento durante período de estabilidade legal, ou estabilidade derivada de acordo ou convenção coletiva de trabalho"],
+["6108","Tempo de espera do motorista profissional","Valor correspondente ao tempo de espera do motorista profissional"],
+["6119","Indenização rescisória - Lei 14.020/2020","Indenização pela dispensa sem justa causa que ocorrer durante o período de garantia provisória no emprego de que trata o art. 10 da Lei 14.020/2020 (conversão da MP 936/2020)"],
+["6129","Outras verbas não remuneratórias (indenizatórias ou multas)","Valor correspondente a parcelas indenizatórias ou outras multas previstas em leis ou em Instrumentos Coletivos de Trabalho, exceto as previstas nos demais itens"],
+["6901","Desconto do aviso prévio","Valor descontado do trabalhador que tenha pedido demissão e não cumpriu aviso prévio, total ou parcialmente"],
+["6904","Multa prevista no art. 480 da CLT","Valor descontado do empregado pela rescisão antecipada, por iniciativa do empregado, do contrato de trabalho a termo"],
+["7001","Proventos","Valor dos proventos de Aposentadoria a servidor público"],
+["7002","Proventos - Pensão por morte Civil","Valor dos proventos por morte a beneficiário de servidor público"],
+["7003","Proventos - Reserva","Valor dos proventos a militar da reserva remunerada"],
+["7004","Proventos - Reforma","Valor dos proventos a militar reformado"],
+["7005","Pensão Militar","Valor da pensão a beneficiário de militar"],
+["7006","Auxílio-reclusão","Valor de auxílio-reclusão para o servidor público de baixa renda"],
+["7007","Pensões especiais","Valor das pensões de caráter especial diferentes de pensão por morte"],
+["7008","Complementação de aposentadoria/ pensão","Valor relativo à complementação de aposentadoria/pensão vinculada ao Regime Geral de Previdência Social - RGPS"],
+["9200","Desconto de adiantamentos","Valor relativo a descontos a título de adiantamentos em geral, como de salários e outros, exceto a 1ª parcela do 13° salário"],
+["9201","Contribuição previdenciária","Desconto a título de contribuição previdenciária"],
+["9202","Contribuição militar","Desconto relativo à seguridade do militar e seus dependentes"],
+["9203","Imposto de Renda Retido na Fonte","Desconto a título de Imposto de Renda Retido na Fonte - IRRF"],
+["9205","Provisão de contribuição previdenciária","Desconto efetuado em recibos de férias relativo a provisão de contribuição previdenciária"],
+["9207","Faltas","Desconto decorrente de ausência de trabalho durante todo o dia em razão de, por exemplo, falta injustificada, suspensão disciplinar, greve"],
+["9208","Atrasos","Desconto decorrente de ausência de trabalho em razão de, por exemplo, atrasos no início da jornada de trabalho ou de saída antecipada do trabalhador"],
+["9209","Faltas ou atrasos","Desconto correspondente a faltas, atrasos no início da jornada de trabalho ou à saída antecipada do trabalhador"],
+["9210","DSR s/faltas e atrasos","Desconto correspondente ao Descanso Semanal Remunerado - DSR, calculado sobre faltas e atrasos do trabalhador"],
+["9211","DSR sobre faltas","Desconto correspondente ao Descanso Semanal Remunerado - DSR, calculado sobre faltas do trabalhador"],
+["9212","DSR sobre atrasos","Desconto correspondente ao Descanso Semanal Remunerado - DSR, calculado sobre atrasos do trabalhador"],
+["9213","Pensão alimentícia","Desconto correspondente a pensão alimentícia sobre o salário mensal, 13° salário, PLR e férias"],
+["9214","13° salário - Desconto de adiantamento","Desconto de antecipação do 13° salário"],
+["9216","Desconto de vale-transporte","Desconto do vale-transporte referente a participação do trabalhador no custo ou em virtude de concessão do benefício em valor maior"],
+["9217","Contribuição a Outras Entidades e Fundos","Desconto relativo a contribuições destinadas a outras entidades e fundos (Terceiros), como por exemplo, Sest, Senat, etc., devidas por algumas categorias de contribuintes individuais"],
+["9218","Retenções judiciais","Desconto relativo a retenções de verbas devidas a trabalhadores por ordem judicial, exceto pensão alimentícia"],
+["9219","Desconto de assistência médica ou odontológica","Desconto referente a participação do trabalhador no custo de assistência médica ou odontológica, ou em virtude de concessão do benefício em valor maior"],
+["9221","Desconto de férias","Valor correspondente a remuneração (dias) de férias do mês corrente pago no mês anterior ou adiantamento de férias"],
+["9222","Desconto de outros impostos e contribuições","Desconto de outros impostos, taxas e contribuições, exceto Imposto de Renda Retido na Fonte, contribuição previdenciária e contribuições destinadas a outras entidades e fundos (Terceiros)"],
+["9223","Previdência complementar - Parte do empregado","Desconto referente a participação do trabalhador no custo ou em virtude de concessão do benefício em valor maior"],
+["9224","FAPI - Parte do empregado","Desconto referente a participação do trabalhador no custo de Fundo de Aposentadoria Programada Individual - FAPI, ou em virtude de concessão do benefício em valor maior"],
+["9225","Previdência complementar - Parte do servidor","Desconto referente a participação do trabalhador no custeio de Plano de Previdência Complementar do Servidor Público"],
+["9226","Desconto de férias - Abono","Desconto correspondente ao abono de férias pago no mês anterior ou adiantamento de férias"],
+["9230","Contribuição sindical laboral","Valor correspondente ao desconto da contribuição laboral correspondente a um dia de trabalho a título de contribuição sindical"],
+["9231","Contribuição sindical - Associativa","Valor correspondente ao desconto referente a mensalidade sindical do trabalhador"],
+["9232","Contribuição sindical - Assistencial","Valor correspondente ao desconto da contribuição destinada ao custeio das atividades assistenciais do sindicato"],
+["9233","Contribuição sindical - Confederativa","Valor correspondente ao desconto da contribuição destinada ao custeio do sistema confederativo"],
+["9240","Alimentação concedida em pecúnia - Desconto","Desconto referente à alimentação concedida sob a forma de pecúnia"],
+["9241","Alimentação em ticket ou cartão, vinculada ao PAT - Desconto","Desconto referente à participação do trabalhador no custo de alimentação concedida sob a forma de ticket ou cartão, por empresa vinculada ao Programa de Alimentação do Trabalhador - PAT"],
+["9242","Alimentação em ticket ou cartão, não vinculada ao PAT - Desconto","Desconto referente à participação do trabalhador no custo de alimentação concedida sob a forma de ticket ou cartão, por empresa não vinculada ao PAT"],
+["9243","Cesta básica ou refeição, vinculada ao PAT - Desconto","Desconto referente à participação do trabalhador no custo de alimentação concedida sob a forma de cesta básica ou refeição, por empresa vinculada ao PAT"],
+["9244","Cesta básica ou refeição, não vinculada ao PAT - Desconto","Desconto referente à participação do trabalhador no custo de alimentação concedida sob a forma de cesta básica ou refeição, por empresa não vinculada ao PAT"],
+["9250","Seguro de vida - Desconto","Desconto referente a participação do trabalhador no custo ou em virtude de concessão do benefício em valor maior"],
+["9253","Empréstimos eConsignado - Desconto","Desconto de trabalhadores a título de empréstimos na modalidade eConsignado para repasse à instituição financeira consignatária recolhido em guia do FGTS conforme legislação específica"],
+["9254","Empréstimos consignados - Desconto","Desconto de trabalhadores a título de empréstimos consignados, para repasse a instituição financeira consignatária"],
+["9255","Empréstimos do empregador - Desconto","Desconto de trabalhadores a título de empréstimos efetuados pelo empregador ao trabalhador"],
+["9258","Convênios","Desconto relativos a convênios diversos com empresas para fornecimento de produtos ou serviços ao empregado, sem pagamento imediato, mas com posterior desconto em folha de pagamento como farmácias, supermercados, etc."],
+["9260","FIES - Desconto","Desconto referente à amortização de financiamento do Fundo de Financiamento Estudantil (FIES), para repasse à instituição consignatária"],
+["9270","Danos e prejuízos causados pelo trabalhador","Desconto do trabalhador para reparar danos e prejuízos por ele causados"],
+["9291","Abate-teto","Valor deduzido da remuneração total do segurado que supere o teto remuneratório constitucional"],
+["9292","Ressarcimento ao erário","Valor deduzido da remuneração para pagamento de ressarcimento ou de penalidade"],
+["9293","Honorários advocatícios","Valor descontado do trabalhador por determinação judicial a ser pago ao advogado/escritório de advocacia"],
+["9294","Redutor EC 41/03","Valor descontado da remuneração do instituidor da pensão (Emenda Constitucional 41/2003)"],
+["9299","Outros descontos","Outros descontos não previstos nos demais itens"],
+["9901","Base de cálculo da contribuição previdenciária","Valor total da base de cálculo da contribuição previdenciária"],
+["9902","Total da base de cálculo do FGTS","Valor total da base de cálculo do FGTS"],
+["9903","Total da base de cálculo do IRRF","Valor total da base de cálculo do Imposto de Renda Retido na Fonte"],
+["9904","Total da base de cálculo do FGTS rescisório","Valor total da base de cálculo do FGTS rescisório"],
+["9905","Serviço militar","Valor não relativo a vencimento ou desconto, relativo à remuneração a que teria direito, se em atividade, o trabalhador afastado do trabalho para prestação do serviço militar obrigatório"],
+["9906","Remuneração no exterior","Remuneração recebida no exterior por trabalhador expatriado sobre a qual incida contribuição previdenciária e/ou IRRF e/ou FGTS"],
+["9907","Total da contribuição da previdenciária patronal - RPPS","Valor total da contribuição previdenciária patronal para o RPPS (normal, suplementar e aportes)"],
+["9908","FGTS - Depósito","Valor do depósito do FGTS"],
+["9910","Seguros","Valor relativo a prêmio de seguro de vida em grupo pago a empresa de seguros como benefício do trabalhador"],
+["9911","Assistência Médica","Valor não relativo a vencimento ou desconto, relativo à assistência prestada por serviço médico ou odontológico, próprio da empresa ou por ela conveniado, como benefício ao trabalhador"],
+["9912","Desconto de assistência médica ou odontológica - Plano diferente de coletivo empresarial","Desconto referente aos custos de assistência médica ou odontológica, quando não se tratar de plano de saúde coletivo empresarial (código [9219])"],
+["9930","Salário-maternidade pago pela Previdência Social","Valor correspondente à remuneração mensal do(a) trabalhador(a) durante a licença maternidade, quando paga pela Previdência Social (RGPS ou pela Unidade Gestora do RPPS)"],
+["9931","Salário-maternidade pago pela Previdência Social - 13° salário","Valor correspondente ao 13° salário do(a) trabalhador(a) durante a licença maternidade, quando pago pela Previdência Social (RGPS ou pela Unidade Gestora do RPPS)"],
+["9932","Auxílio-doença acidentário","Valor relativo a base de cálculo do FGTS incidente sobre benefício previdenciário pago por Previdência Social Oficial a trabalhador afastado por acidente de trabalho"],
+["9933","Auxílio-doença","Valor de benefício previdenciário pago por Regime Próprio de Previdência Social ou valor de auxílio-doença dedutível conforme Lei 13.982/2020 (Covid-19)"],
+["9938","Isenção IRRF - 65 anos","Valor da parcela isenta dos rendimentos de aposentadoria e pensão, transferência para a reserva remunerada ou reforma, pagos por órgão público de previdência oficial ou por entidade de previdência complementar, no caso de contribuinte com idade igual ou superior a 65 anos"],
+["9939","Outros valores tributáveis","Valor não relativo a vencimento ou desconto mas considerado como base de cálculo do FGTS, e/ou da contribuição previdenciária e/ou do Imposto de Renda Retido na Fonte inclusive suas deduções e isenções"],
+["9989","Outros valores informativos","Outros valores informativos, que não sejam vencimentos nem descontos"]
+];
+(function(){
+  const tbody = document.querySelector('#tblRubricas tbody');
+  const busca = document.getElementById('rubricaBusca');
+  function norm(s){ return String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
+  function render(f){
+    const q = norm(f||'').trim();
+    tbody.innerHTML = TABELA_RUBRICAS
+      .filter(r => !q || String(r[0]).indexOf(q)===0 || norm(r[1]).includes(q) || norm(r[2]).includes(q))
+      .map(r => '<tr><td>'+r[0]+'</td><td>'+r[1]+'</td><td class="mem">'+r[2]+'</td></tr>').join('');
+    if (!tbody.innerHTML) tbody.innerHTML = '<tr><td colspan="3">Nenhuma natureza encontrada.</td></tr>';
+  }
+  busca.addEventListener('input', () => render(busca.value));
+  render('');
+})();
 </script>
 </body>
 </html>
