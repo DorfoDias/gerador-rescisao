@@ -298,6 +298,7 @@ footer.f .disc{font-size:11px;color:#9FC3CF}
     <div class="doctabs">
       <button class="btn sec" id="btnAcordo">Acordo Rescisório</button>
       <button class="btn sec" id="btnRecibo">Recibo Avulso</button>
+      <button class="btn sec" id="btnDemonstrativo">Demonstrativo de Valores</button>
     </div>
     <div class="previewbox"><iframe id="docFrame" title="Prévia do documento"></iframe></div>
     <div class="toolbar">
@@ -1069,16 +1070,112 @@ function gerarRecibo(calc){
   return preencher(html, dados);
 }
 
+const MODALIDADE_NOME = {
+  dispensa_sem_justa_causa: 'Dispensa sem justa causa',
+  pedido_demissao: 'Pedido de demissão',
+  acordo_484a: 'Acordo mútuo (art. 484-A da CLT)',
+  termino_experiencia: 'Término de contrato de experiência/prazo determinado',
+  justa_causa: 'Dispensa por justa causa (art. 482 da CLT)'
+};
+
+function gerarDemonstrativo(calc){
+  const dados = montarDadosComuns(calc);
+  dados.MODALIDADE_NOME = MODALIDADE_NOME[calc.modalidade] || calc.modalidade;
+  dados.TOTAL_PROVENTOS = brl(calc.totalProventos);
+  dados.TOTAL_DESCONTOS = brl(calc.totalDescontos);
+  dados.DATA_EMISSAO = fmtBR(new Date());
+  const html = `<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="UTF-8"><title>Demonstrativo de Valores Rescis&oacute;rios &mdash; {{FUNC_NOME}}</title>
+<style>${CSS_DOC}</style></head><body contenteditable="true">
+<div class="page">
+  <div class="doc-header">
+    <div class="brand"><div class="brand-name">Mury &middot; Assessoria Cont&aacute;bil</div><div class="brand-sub">Consultoria Trabalhista &amp; Departamento Pessoal</div></div>
+    <div><div class="doc-type">Demonstrativo de Valores Rescis&oacute;rios</div><div class="doc-sub">{{SUBTITULO_BASE_LEGAL}}</div></div>
+  </div>
+  <div class="gold-line"></div>
+  <div class="doc-body">
+
+    <div class="section-block">
+      <div class="section-tag">Identifica&ccedil;&atilde;o</div>
+      <div class="section-title">Demonstrativo de C&aacute;lculo de Verbas Rescis&oacute;rias</div>
+      <div class="id-block">
+        <div class="id-section-label">&#9658; Empregadora</div>
+        <div class="id-grid">
+          <div class="id-field"><label>Raz&atilde;o Social</label><div class="val campo">{{EMP_RAZAO}}</div></div>
+          <div class="id-field"><label>CNPJ</label><div class="val campo">{{EMP_CNPJ}}</div></div>
+        </div>
+        <div class="id-grid" style="margin-top:5px;">
+          <div class="id-field"><label>Sede</label><div class="val campo">{{EMP_ENDERECO}}</div></div>
+          <div class="id-field"><label>Representante Legal</label><div class="val campo">{{EMP_REPRESENTANTE}}</div></div>
+        </div>
+        <hr class="id-divider"/>
+        <div class="id-section-label">&#9658; Empregado(a)</div>
+        <div class="id-grid">
+          <div class="id-field"><label>Nome</label><div class="val campo">{{FUNC_NOME}}</div></div>
+          <div class="id-field"><label>CPF</label><div class="val campo">{{FUNC_CPF}}</div></div>
+        </div>
+        <div class="id-grid-3">
+          <div class="id-field"><label>Cargo</label><div class="val campo">{{FUNC_CARGO}}</div></div>
+          <div class="id-field"><label>Admiss&atilde;o</label><div class="val campo">{{DATA_ADMISSAO}}</div></div>
+          <div class="id-field"><label>Desligamento</label><div class="val campo">{{DATA_DESLIGAMENTO}}</div></div>
+        </div>
+        <hr class="id-divider"/>
+        <div class="id-grid">
+          <div class="id-field"><label>Modalidade de desligamento</label><div class="val">{{MODALIDADE_NOME}}</div></div>
+          <div class="id-field"><label>Data de emiss&atilde;o</label><div class="val">{{DATA_EMISSAO}}</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-block">
+      <div class="section-tag">Valores</div>
+      <div class="section-title">Discrimina&ccedil;&atilde;o das Verbas</div>
+      <table class="info-table">
+        <thead><tr><th>Verba</th><th>Base de c&aacute;lculo</th><th style="text-align:right">Valor</th></tr></thead>
+        <tbody>{{LINHAS_TABELA}}</tbody>
+        <tfoot>
+          <tr><td colspan="2">Total de proventos</td><td class="num">R$ {{TOTAL_PROVENTOS}}</td></tr>
+          <tr><td colspan="2">Total de descontos</td><td class="num">- R$ {{TOTAL_DESCONTOS}}</td></tr>
+          <tr><td colspan="2">TOTAL L&Iacute;QUIDO</td><td class="num">R$ {{TOTAL_LIQUIDO}}</td></tr>
+        </tfoot>
+      </table>
+      <div class="highlight-box">Valor l&iacute;quido apurado: <strong>R$ {{TOTAL_LIQUIDO}} ({{TOTAL_EXTENSO}})</strong>.</div>
+    </div>
+
+    <div class="section-block">
+      <div class="section-tag">FGTS</div>
+      <div class="section-title">Informa&ccedil;&otilde;es Complementares</div>
+      <div class="clause">Multa rescis&oacute;ria do FGTS: {{FGTS_MULTA_PERC}}% sobre o saldo da conta vinculada, no valor de R$ {{FGTS_MULTA_VALOR}} (Lei n&ordm; 8.036/90).</div>
+      <div class="clause">Movimenta&ccedil;&atilde;o da conta vinculada do FGTS: {{FGTS_SAQUE_TEXTO}}.</div>
+      <div class="alert-box closing-anchor">
+        <div class="alert-label">Aviso</div>
+        <div class="alert-text">Documento demonstrativo de c&aacute;lculo, emitido para simples confer&ecirc;ncia das partes. N&atilde;o substitui o TRCT, o recibo de quita&ccedil;&atilde;o nem os registros obrigat&oacute;rios do eSocial.</div>
+      </div>
+    </div>
+
+  </div>
+  <div class="logo-footer"><div class="logo-text">mury</div><div class="logo-tagline">Solu&ccedil;&otilde;es de Qualidade</div></div>
+  <div class="doc-footer">
+    <div class="f-address">Rua Ipiranga, 155 &mdash; Centro &mdash; S&atilde;o Louren&ccedil;o &mdash; MG<br/>Mury &middot; Assessoria Cont&aacute;bil</div>
+    <div class="f-contact">grupomury.com.br<br/>pessoal.ia.sl@grupomury.com.br</div>
+  </div>
+</div>
+</body></html>`;
+  return preencher(html, dados);
+}
+
 let DOC_HTML_ATUAL = '';
 const docFrame = document.getElementById('docFrame');
 
 function mostrarDocumento(tipo){
   if (!ULTIMO_CALCULO){ alert('Calcule as verbas primeiro.'); return; }
-  DOC_HTML_ATUAL = tipo==='acordo' ? gerarAcordo(ULTIMO_CALCULO) : gerarRecibo(ULTIMO_CALCULO);
+  DOC_HTML_ATUAL = tipo==='acordo' ? gerarAcordo(ULTIMO_CALCULO)
+    : (tipo==='recibo' ? gerarRecibo(ULTIMO_CALCULO) : gerarDemonstrativo(ULTIMO_CALCULO));
   docFrame.srcdoc = DOC_HTML_ATUAL;
 }
 document.getElementById('btnAcordo').addEventListener('click', () => mostrarDocumento('acordo'));
 document.getElementById('btnRecibo').addEventListener('click', () => mostrarDocumento('recibo'));
+document.getElementById('btnDemonstrativo').addEventListener('click', () => mostrarDocumento('demonstrativo'));
 
 document.getElementById('btnImprimir').addEventListener('click', () => {
   if (!docFrame.contentWindow){ alert('Gere o documento primeiro.'); return; }
