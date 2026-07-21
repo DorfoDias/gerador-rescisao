@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gerador de Documentos Avulsos de Rescisão — Mury</title>
+<style>
+:root{
+  --mury-950:#0C2E38; --mury-900:#103B47; --mury-800:#144653; --mury-700:#1C5568; --mury-600:#23677D;
+  --mint:#3FD9BD; --mint-dark:#22B89D; --mint-ink:#0C2E38;
+  --bg:#EDF2F4; --surface:#FFFFFF; --ink:#16323A; --muted:#5A7078; --line:#D7E1E4;
+  --accent:var(--mury-700); --accent-soft:#E3EEF1;
+  --good:#1F7A3F; --good-bg:#DFF2E4;
+  --warn:#9A6200; --warn-bg:#FCEED3;
+  --crit:#B3261E; --crit-bg:#F9E3E1;
+  --info:#1C5568; --info-bg:#DFEBF0;
+  --band-ink:#FFFFFF;
+  --shadow:0 1px 3px rgba(12,46,56,.10),0 4px 14px rgba(12,46,56,.08);
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0B1F26; --surface:#12303A; --ink:#DCEAEE; --muted:#8FAAB2; --line:#23444F;
+    --mury-800:#0E3540; --mury-700:#155062; --mury-600:#1D667C;
+    --mint:#3FD9BD; --mint-dark:#2CC3A8; --mint-ink:#06231F;
+    --accent:#4FC3B0; --accent-soft:#123A42;
+    --good:#6FC98A; --good-bg:#14382277;
+    --warn:#E8B45F; --warn-bg:#3A2E1266;
+    --crit:#F2867E; --crit-bg:#42201D88;
+    --info:#8AC3D8; --info-bg:#12333F;
+    --band-ink:#F2F8FA;
+    --shadow:0 1px 3px rgba(0,0,0,.45);
+  }
+}
+:root[data-theme="light"]{
+  --mury-950:#0C2E38; --mury-900:#103B47; --mury-800:#144653; --mury-700:#1C5568; --mury-600:#23677D;
+  --mint:#3FD9BD; --mint-dark:#22B89D; --mint-ink:#0C2E38;
+  --bg:#EDF2F4; --surface:#FFFFFF; --ink:#16323A; --muted:#5A7078; --line:#D7E1E4;
+  --accent:var(--mury-700); --accent-soft:#E3EEF1;
+  --good:#1F7A3F; --good-bg:#DFF2E4;
+  --warn:#9A6200; --warn-bg:#FCEED3;
+  --crit:#B3261E; --crit-bg:#F9E3E1;
+  --info:#1C5568; --info-bg:#DFEBF0;
+  --band-ink:#FFFFFF;
+  --shadow:0 1px 3px rgba(12,46,56,.10),0 4px 14px rgba(12,46,56,.08);
+}
+:root[data-theme="dark"]{
+  --bg:#0B1F26; --surface:#12303A; --ink:#DCEAEE; --muted:#8FAAB2; --line:#23444F;
+  --mury-800:#0E3540; --mury-700:#155062; --mury-600:#1D667C;
+  --mint:#3FD9BD; --mint-dark:#2CC3A8; --mint-ink:#06231F;
+  --accent:#4FC3B0; --accent-soft:#123A42;
+  --good:#6FC98A; --good-bg:#14382277;
+  --warn:#E8B45F; --warn-bg:#3A2E1266;
+  --crit:#F2867E; --crit-bg:#42201D88;
+  --info:#8AC3D8; --info-bg:#12333F;
+  --band-ink:#F2F8FA;
+  --shadow:0 1px 3px rgba(0,0,0,.45);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.55 "Segoe UI",system-ui,-apple-system,Verdana,sans-serif;}
+.topband{background:linear-gradient(90deg, var(--mury-900), var(--mury-800) 55%, var(--mury-700));color:var(--band-ink);border-bottom:3px solid var(--mint);}
+.topband .inner{max-width:1180px;margin:0 auto;padding:18px 20px 16px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;}
+.logo{display:flex;align-items:baseline;gap:10px}
+.logo .mury{font-weight:800;font-style:italic;font-size:30px;letter-spacing:.5px;line-height:1;color:#fff;}
+.logo .mury::after{content:"";display:block;height:3px;border-radius:2px;background:var(--mint);margin-top:3px;width:78%}
+.logo .app{font-weight:600;font-size:14px;letter-spacing:.12em;text-transform:uppercase;color:var(--mint);}
+.topband h1{margin:4px 0 0;font-size:15px;font-weight:400;color:#D9E8ED;letter-spacing:.02em;}
+.wrap{max-width:1180px;margin:0 auto;padding:24px 20px 80px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow);padding:18px 20px;margin-bottom:18px}
+.card h2{margin:0 0 14px;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);border-bottom:1px solid var(--line);padding-bottom:8px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px 18px}
+.grid.g3{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
+label{display:flex;flex-direction:column;gap:5px;font-size:11.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);font-weight:600}
+input[type=text],input[type=date],input[type=number],select{
+  font:14px/1.3 "Segoe UI",system-ui,sans-serif;color:var(--ink);background:var(--bg);border:1px solid var(--line);
+  border-radius:6px;padding:8px 10px;width:100%;
+}
+input:focus,select:focus{outline:2px solid var(--mint);outline-offset:1px}
+.hint{font-size:11.5px;color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0;margin-top:2px}
+.row-check{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink);text-transform:none;letter-spacing:0;font-weight:400}
+.row-check input{width:auto}
+.checklist{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:8px 20px;margin-top:6px}
+.banner{border-radius:8px;padding:12px 16px;font-size:13px;line-height:1.5;margin:10px 0;border-left:4px solid}
+.banner.info{background:var(--info-bg);border-color:var(--info);color:var(--ink)}
+.banner.warn{background:var(--warn-bg);border-color:var(--warn);color:var(--ink)}
+.banner.crit{background:var(--crit-bg);border-color:var(--crit);color:var(--ink);font-weight:600}
+.toolbar{display:flex;gap:10px;justify-content:flex-end;margin:8px 0 4px;flex-wrap:wrap}
+button.btn{font:700 14px/1 "Segoe UI",system-ui,sans-serif;color:var(--mint-ink);background:var(--mint);border:0;border-radius:999px;padding:11px 22px;cursor:pointer;transition:background .15s}
+button.btn:hover{background:var(--mint-dark)}
+button.btn.sec{background:transparent;color:var(--accent);border:2px solid var(--mint);padding:9px 20px}
+button.btn.sec:hover{background:var(--accent-soft)}
+button.btn:disabled{background:var(--line);color:var(--muted);cursor:not-allowed}
+button.btn:focus-visible{outline:3px solid var(--info);outline-offset:2px}
+.tblwrap{overflow-x:auto}
+table.res{border-collapse:collapse;width:100%;font-size:13px;min-width:640px}
+table.res th{text-align:left;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:8px;border-bottom:2px solid var(--line)}
+table.res td{padding:8px;border-bottom:1px solid var(--line);vertical-align:top}
+table.res td.val{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:600}
+table.res td.mem{font-size:11.5px;color:var(--muted)}
+table.res tr.total td{font-weight:800;border-top:2px solid var(--accent);font-size:14px}
+table.res tr.zero td{color:var(--muted)}
+.tag{display:inline-block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:2px 8px;border-radius:999px}
+.tag.dev{background:var(--good-bg);color:var(--good)}
+.tag.nao{background:var(--line);color:var(--muted)}
+.autocol{position:relative}
+.suggest{position:absolute;top:100%;left:0;right:0;background:var(--surface);border:1px solid var(--line);border-radius:0 0 8px 8px;box-shadow:var(--shadow);z-index:5;max-height:160px;overflow:auto;display:none}
+.suggest.show{display:block}
+.suggest div{padding:8px 10px;cursor:pointer;font-size:13px}
+.suggest div:hover{background:var(--accent-soft)}
+.doctabs{display:flex;gap:8px;margin-bottom:12px}
+.doctabs button{flex:1}
+.previewbox{border:1px solid var(--line);border-radius:8px;overflow:hidden;background:#ddd}
+iframe#docFrame{width:100%;height:720px;border:0;background:#fff;display:block}
+.printnote{font-size:12px;color:var(--muted);line-height:1.6;margin-top:8px}
+.printnote b{color:var(--ink)}
+footer.f{text-align:center;color:var(--muted);font-size:12px;padding:20px 0}
+.section-divider{border:none;border-top:1px dashed var(--line);margin:14px 0}
+</style>
+</head>
+<body>
+
+<div class="topband">
+  <div class="inner">
+    <div class="logo"><span class="mury">mury</span><span class="app">Gerador de Documentos Avulsos</span></div>
+    <div style="text-align:right">
+      <h1>Acordo Rescisório &amp; Recibo Avulso — cálculo e documento em minutos</h1>
+      <div style="font-size:11px;color:#9FC3CF">v1.0 · 21/07/2026</div>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <div class="banner info">
+    <b>Antes de começar:</b> esta ferramenta cobre os casos de rotina (dispensa sem justa causa, pedido de
+    demissão, acordo mútuo art. 484-A, término de contrato de experiência e justa causa). Ela <b>não</b>
+    calcula rescisão indireta, culpa recíproca ou morte do empregado, não decide sobre CCT/ACT específica da
+    categoria e não substitui a checagem de estabilidade — confirme esses pontos com a skill
+    <code>consultoria-trabalhista</code>/<code>conferencia-rescisao</code> antes de gerar o documento final.
+    Todo campo do documento gerado pode ser editado clicando dentro dele, antes de imprimir.
+  </div>
+
+  <!-- ============ EMPRESA ============ -->
+  <div class="card">
+    <h2>1 · Empresa (empregadora)</h2>
+    <div class="grid">
+      <label class="autocol">Razão social
+        <input type="text" id="empRazao" placeholder="Nome da empresa" autocomplete="off">
+        <div class="suggest" id="empSuggest"></div>
+      </label>
+      <label>CNPJ
+        <input type="text" id="empCnpj" placeholder="00.000.000/0000-00">
+      </label>
+      <label>Endereço (sede)
+        <input type="text" id="empEndereco" placeholder="Rua, número — Cidade/UF">
+      </label>
+      <label>Representante legal
+        <input type="text" id="empRepresentante" placeholder="Nome do sócio/representante">
+      </label>
+    </div>
+    <div class="hint" id="cnpjHint" style="margin-top:8px"></div>
+    <div style="margin-top:10px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+      <button class="btn sec" type="button" id="btnImportarBase">Importar base de clientes (.json)</button>
+      <input type="file" id="baseFile" accept=".json,application/json" style="display:none">
+      <span class="hint" id="baseStatus" style="margin:0"></span>
+    </div>
+  </div>
+
+  <!-- ============ EMPREGADO ============ -->
+  <div class="card">
+    <h2>2 · Empregado(a)</h2>
+    <div class="grid">
+      <label>Nome completo<input type="text" id="funcNome" placeholder="Nome do empregado"></label>
+      <label>CPF<input type="text" id="funcCpf" placeholder="000.000.000-00"></label>
+      <label>Cargo/função<input type="text" id="funcCargo" placeholder="Cargo"></label>
+      <label>Data de admissão<input type="date" id="dataAdmissao"></label>
+    </div>
+  </div>
+
+  <!-- ============ MODALIDADE ============ -->
+  <div class="card">
+    <h2>3 · Modalidade de desligamento</h2>
+    <div class="grid">
+      <label>Modalidade
+        <select id="modalidade">
+          <option value="dispensa_sem_justa_causa">Dispensa sem justa causa</option>
+          <option value="pedido_demissao">Pedido de demissão</option>
+          <option value="acordo_484a">Acordo mútuo (art. 484-A)</option>
+          <option value="termino_experiencia">Término de contrato de experiência/prazo determinado</option>
+          <option value="justa_causa">Justa causa (empregador)</option>
+        </select>
+        <div class="hint">Rescisão indireta, culpa recíproca ou morte do(a) empregado(a): não cobertas — use a skill <code>conferencia-rescisao</code> em conversa.</div>
+      </label>
+      <label>Data do desligamento<input type="date" id="dataDesligamento"></label>
+      <label id="lblAvisoTipoWrap">Aviso prévio
+        <select id="avisoTipo">
+          <option value="indenizado">Indenizado</option>
+          <option value="trabalhado">Trabalhado</option>
+        </select>
+      </label>
+    </div>
+    <div class="banner crit" id="bannerJustaCausa" style="display:none">
+      <label class="row-check"><input type="checkbox" id="chkGradacao">
+      Confirmo que a gradação de penalidades (advertência → suspensão → justa causa) já foi observada e está documentada — esta ferramenta não avalia isso.</label>
+    </div>
+  </div>
+
+  <!-- ============ REMUNERAÇÃO ============ -->
+  <div class="card">
+    <h2>4 · Remuneração e médias (últimos 12 meses)</h2>
+    <div class="grid g3">
+      <label>Salário base atual (R$)<input type="number" step="0.01" id="salarioBase" placeholder="0,00"></label>
+      <label>Média de horas extras (R$/mês)<input type="number" step="0.01" id="mediaHE" placeholder="0,00"></label>
+      <label>Média de comissões (R$/mês)<input type="number" step="0.01" id="mediaComissao" placeholder="0,00"></label>
+      <label>Média de adicionais (R$/mês)<input type="number" step="0.01" id="mediaAdicionais" placeholder="0,00"></label>
+    </div>
+    <div class="hint">As médias já devem vir com DSR incluso, apuradas pelo sistema de folha — esta ferramenta não recalcula DSR mensal.</div>
+  </div>
+
+  <!-- ============ PENDÊNCIAS E DESCONTOS ============ -->
+  <div class="card">
+    <h2>5 · Férias, descontos e encargos</h2>
+    <div class="grid g3">
+      <label class="row-check" style="text-transform:none"><input type="checkbox" id="chkFeriasVencidas"> Há férias vencidas não gozadas</label>
+      <label class="row-check" style="text-transform:none"><input type="checkbox" id="chkFeriasDobro"> Pagar férias vencidas em dobro (art. 137 — período concessivo estourado)</label>
+      <label>Faltas injustificadas no período aquisitivo atual<input type="number" min="0" step="1" id="faltas" value="0"></label>
+      <label>Saldo do FGTS (extrato Caixa, p/ multa)<input type="number" step="0.01" id="saldoFgts" placeholder="0,00"></label>
+      <label>Ano da competência (tabela INSS)<input type="number" id="anoComp" value="2026"></label>
+      <label>IRRF apurado (informar manualmente)<input type="number" step="0.01" id="irrfManual" placeholder="0,00"></label>
+      <label>Outros descontos (adiantamento, pensão, consignado)<input type="number" step="0.01" id="outrosDescontos" placeholder="0,00"></label>
+    </div>
+    <div class="banner warn" style="margin-top:4px">
+      <b>IRRF:</b> não há tabela de IRRF validada nesta ferramenta — informe o valor apurado no sistema de
+      folha ou confira a tabela vigente antes de lançar. <b>Tabela INSS:</b> só a de 2026 está validada;
+      para outro ano, ajuste manualmente após calcular.
+    </div>
+  </div>
+
+  <!-- ============ ESTABILIDADES ============ -->
+  <div class="card">
+    <h2>6 · Checklist de estabilidade (marque se houver qualquer uma)</h2>
+    <div class="checklist">
+      <label class="row-check"><input type="checkbox" class="estab"> Gestante</label>
+      <label class="row-check"><input type="checkbox" class="estab"> Acidente de trabalho (últimos 12 meses)</label>
+      <label class="row-check"><input type="checkbox" class="estab"> Cipeiro (CIPA)</label>
+      <label class="row-check"><input type="checkbox" class="estab"> Dirigente sindical</label>
+      <label class="row-check"><input type="checkbox" class="estab"> Retorno recente de auxílio-doença</label>
+      <label class="row-check"><input type="checkbox" class="estab"> Pré-aposentadoria prevista em CCT</label>
+    </div>
+    <div class="banner crit" id="bannerEstabilidade" style="display:none">
+      Estabilidade marcada — esta ferramenta <b>não gera o documento</b>. Consulte a skill
+      <code>consultoria-trabalhista</code> ou o jurídico trabalhista antes de prosseguir.
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <button class="btn" id="btnCalcular">Calcular verbas</button>
+  </div>
+
+  <!-- ============ RESULTADO ============ -->
+  <div class="card" id="cardResultado" style="display:none">
+    <h2>7 · Conferência de verbas</h2>
+    <div class="tblwrap">
+      <table class="res" id="tblResultado">
+        <thead><tr><th>Verba</th><th>Memória de cálculo</th><th style="text-align:right">Valor</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <div class="hint" style="margin-top:10px">Confira cada linha antes de gerar o documento. Linhas em cinza = verba não devida nesta modalidade.</div>
+  </div>
+
+  <!-- ============ DOCUMENTO ============ -->
+  <div class="card" id="cardDocumento" style="display:none">
+    <h2>8 · Gerar documento</h2>
+    <div class="doctabs">
+      <button class="btn sec" id="btnAcordo">Acordo Rescisório</button>
+      <button class="btn sec" id="btnRecibo">Recibo Avulso</button>
+    </div>
+    <div class="previewbox"><iframe id="docFrame" title="Prévia do documento"></iframe></div>
+    <div class="toolbar">
+      <button class="btn sec" id="btnCopiar">Copiar HTML</button>
+      <button class="btn sec" id="btnBaixar">Baixar HTML</button>
+      <button class="btn" id="btnImprimir">🖨️ Imprimir / Salvar PDF</button>
+    </div>
+    <div class="printnote">
+      Ao imprimir: <b>Papel A4 · Retrato</b>, <b>Margens: Padrão</b>, <b>Escala: 100%</b>,
+      <b>Gráficos de fundo: ativado</b>, <b>Cabeçalhos e rodapés do navegador: desativado</b>.
+    </div>
+  </div>
+
+  <footer class="f">Mury Assessoria Contábil · uso interno do Departamento Pessoal</footer>
+</div>
+
+<script>
+/* =====================================================================
+   UTILITÁRIOS DE DATA
+   ===================================================================== */
+function parseISO(str){ if(!str) return null; const [y,m,d]=str.split('-').map(Number); return new Date(y, m-1, d); }
+function fmtBR(date){ if(!date) return ''; const d=String(date.getDate()).padStart(2,'0'), m=String(date.getMonth()+1).padStart(2,'0'), y=date.getFullYear(); return d+'/'+m+'/'+y; }
+function addDays(date, n){ const d=new Date(date); d.setDate(d.getDate()+n); return d; }
+function fullYears(start, end){
+  let years = end.getFullYear() - start.getFullYear();
+  const aniversario = new Date(end.getFullYear(), start.getMonth(), start.getDate());
+  if (end < aniversario) years--;
+  return Math.max(0, years);
+}
+// conta meses com >=15 dias trabalhados entre start (inclusive) e end (inclusive), máx 12
+function contarMesesFracao(start, end){
+  if (!start || !end || end < start) return 0;
+  let meses = 0;
+  let y = start.getFullYear(), m = start.getMonth();
+  const endY = end.getFullYear(), endM = end.getMonth();
+  let guard = 0;
+  while ((y < endY || (y === endY && m <= endM)) && guard < 600){
+    guard++;
+    const inicioMes = (y === start.getFullYear() && m === start.getMonth()) ? start.getDate() : 1;
+    const diasNoMes = new Date(y, m+1, 0).getDate();
+    const fimMes = (y === endY && m === endM) ? end.getDate() : diasNoMes;
+    const trabalhados = fimMes - inicioMes + 1;
+    if (trabalhados >= 15) meses++;
+    m++; if (m>11){ m=0; y++; }
+  }
+  return Math.min(meses, 12);
+}
+// último aniversário de admissão (início do período aquisitivo atual de férias) na data de referência
+function inicioPeriodoAquisitivoAtual(admissao, referencia){
+  const anos = fullYears(admissao, referencia);
+  return new Date(admissao.getFullYear()+anos, admissao.getMonth(), admissao.getDate());
+}
+
+/* =====================================================================
+   VALOR POR EXTENSO (pt-BR)
+   ===================================================================== */
+function extensoInteiro(n){
+  if (n === 0) return 'zero';
+  const unidades=['','um','dois','três','quatro','cinco','seis','sete','oito','nove'];
+  const dezA=['dez','onze','doze','treze','quatorze','quinze','dezesseis','dezessete','dezoito','dezenove'];
+  const dezenas=['','','vinte','trinta','quarenta','cinquenta','sessenta','setenta','oitenta','noventa'];
+  const centenas=['','cento','duzentos','trezentos','quatrocentos','quinhentos','seiscentos','setecentos','oitocentos','novecentos'];
+  function tres(num){
+    if (num === 0) return '';
+    if (num === 100) return 'cem';
+    const c = Math.floor(num/100), r = num % 100;
+    const parts = [];
+    if (c>0) parts.push(centenas[c]);
+    if (r>0){
+      if (r<10) parts.push(unidades[r]);
+      else if (r<20) parts.push(dezA[r-10]);
+      else{
+        const d=Math.floor(r/10), u=r%10;
+        parts.push(u>0 ? (dezenas[d]+' e '+unidades[u]) : dezenas[d]);
+      }
+    }
+    return parts.join(' e ');
+  }
+  const grupos=[]; let resto=n;
+  while (resto>0){ grupos.unshift(resto%1000); resto=Math.floor(resto/1000); }
+  if (grupos.length===0) grupos.push(0);
+  const nomes=[{s:'bilhão',p:'bilhões'},{s:'milhão',p:'milhões'},{s:'mil',p:'mil'},{s:'',p:''}];
+  const offset = nomes.length - grupos.length;
+  const partes=[];
+  for (let i=0;i<grupos.length;i++){
+    const val=grupos[i];
+    if (val===0) continue;
+    const nomeObj=nomes[i+offset];
+    const txt=tres(val);
+    if (nomeObj.s==='mil') partes.push(val===1?'mil':(txt+' mil'));
+    else if (nomeObj.s) partes.push(txt+' '+(val===1?nomeObj.s:nomeObj.p));
+    else partes.push(txt);
+  }
+  if (partes.length===0) return 'zero';
+  if (partes.length===1) return partes[0];
+  const last = partes[partes.length-1];
+  const lastVal = grupos[grupos.length-1];
+  const conn = (lastVal>0 && (lastVal<100 || lastVal%100===0)) ? ' e ' : ', ';
+  const head = partes.slice(0,-1).join(', ');
+  return head + conn + last;
+}
+function valorPorExtenso(valor){
+  const neg = valor < 0;
+  valor = Math.round(Math.abs(valor)*100)/100;
+  const reais = Math.floor(valor);
+  const centavos = Math.round((valor-reais)*100);
+  if (reais===0 && centavos===0) return 'zero reais';
+  let txt='';
+  if (reais>0){
+    const reaisTxt = extensoInteiro(reais);
+    const precisaDe = /\b(milhão|milhões|bilhão|bilhões)$/.test(reaisTxt);
+    txt += reaisTxt + (precisaDe?' de':'') + (reais===1?' real':' reais');
+  }
+  if (centavos>0){
+    if (reais>0) txt += ' e ';
+    txt += extensoInteiro(centavos) + (centavos===1?' centavo':' centavos');
+  }
+  return (neg?'menos ':'') + txt;
+}
+
+/* =====================================================================
+   FORMATAÇÃO DE MOEDA
+   ===================================================================== */
+function brl(v){ return (v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+
+/* =====================================================================
+   TABELA INSS 2026 (validada — ver skill conferencia-rescisao)
+   ===================================================================== */
+const TABELA_INSS_2026 = [
+  {lim:1621.00, aliq:0.075, deduz:0.00},
+  {lim:2902.84, aliq:0.09,  deduz:24.32},
+  {lim:4354.27, aliq:0.12,  deduz:111.41},
+  {lim:8475.55, aliq:0.14,  deduz:198.50},
+];
+function calcularINSS(base, ano){
+  if (Number(ano) !== 2026) return null; // força entrada manual fora de 2026
+  const teto = 8475.55;
+  const b = Math.min(base, teto);
+  for (const faixa of TABELA_INSS_2026){
+    if (b <= faixa.lim + 0.001){
+      return Math.max(0, b*faixa.aliq - faixa.deduz);
+    }
+  }
+  return Math.max(0, teto*0.14 - 198.50);
+}
+
+/* =====================================================================
+   BASE DE CLIENTES (importada pelo usuario — nunca embutida nesta versao)
+   + REGISTRO POR NOME NO NAVEGADOR (localStorage, aprende/corrige com o uso)
+   ===================================================================== */
+const EMPRESAS_MURY = [];
+/* Versao publica: a base de clientes NAO faz parte deste arquivo.
+   Importe o arquivo interno empresas-mury.json (botao no cartao Empresa);
+   ela fica gravada apenas no localStorage deste navegador. */
+const BASE_KEY = 'mury-gerador-rescisao-base';
+function carregarBase(){ try{ const b = JSON.parse(localStorage.getItem(BASE_KEY)||'[]'); return Array.isArray(b)?b:[]; }catch(e){ return []; } }
+
+const CNPJ_DB_KEY = 'mury-gerador-rescisao-cnpjdb';
+function carregarCnpjDb(){ try{ return JSON.parse(localStorage.getItem(CNPJ_DB_KEY)||'{}'); }catch(e){ return {}; } }
+function salvarCnpjDb(db){ localStorage.setItem(CNPJ_DB_KEY, JSON.stringify(db)); }
+function registrarEmpresa(nome, cnpj){
+  if (!nome || !cnpj) return;
+  const db = carregarCnpjDb();
+  db[nome.trim()] = cnpj.trim();
+  salvarCnpjDb(db);
+}
+function buscarEmpresas(q){
+  const ql = q.toLowerCase();
+  const resultado = [];
+  const vistos = new Set();
+  EMPRESAS_MURY.concat(carregarBase()).forEach(function(par){
+    const nome = par[0], doc = par[1];
+    if (nome.toLowerCase().includes(ql)){ resultado.push([nome, doc]); vistos.add(nome+'|'+doc); }
+  });
+  const db = carregarCnpjDb();
+  Object.keys(db).forEach(nome => {
+    if (nome.toLowerCase().includes(ql)){
+      const chave = nome+'|'+db[nome];
+      if (!vistos.has(chave)){ resultado.push([nome, db[nome]]); vistos.add(chave); }
+    }
+  });
+  return resultado;
+}
+
+const empRazaoEl = document.getElementById('empRazao');
+const empCnpjEl = document.getElementById('empCnpj');
+const empSuggestEl = document.getElementById('empSuggest');
+const cnpjHintEl = document.getElementById('cnpjHint');
+
+empRazaoEl.addEventListener('input', () => {
+  const q = empRazaoEl.value.trim().toLowerCase();
+  empSuggestEl.innerHTML = '';
+  if (!q){ empSuggestEl.classList.remove('show'); return; }
+  const matches = buscarEmpresas(q);
+  if (matches.length===0){ empSuggestEl.classList.remove('show'); return; }
+  matches.slice(0,8).forEach(([nome, doc]) => {
+    const opt = document.createElement('div');
+    opt.textContent = nome + ' — ' + doc;
+    opt.addEventListener('click', () => {
+      empRazaoEl.value = nome; empCnpjEl.value = doc;
+      empSuggestEl.classList.remove('show');
+      cnpjHintEl.textContent = 'CNPJ preenchido a partir da base de clientes Mury.';
+    });
+    empSuggestEl.appendChild(opt);
+  });
+  empSuggestEl.classList.add('show');
+});
+document.addEventListener('click', (e) => {
+  if (!empSuggestEl.contains(e.target) && e.target !== empRazaoEl) empSuggestEl.classList.remove('show');
+});
+empCnpjEl.addEventListener('change', () => {
+  registrarEmpresa(empRazaoEl.value, empCnpjEl.value);
+  cnpjHintEl.textContent = 'CNPJ memorizado para a próxima vez que digitar esse nome (localStorage deste navegador).';
+});
+
+/* Importacao da base interna de clientes (fica so no localStorage) */
+const baseFileEl = document.getElementById('baseFile');
+const btnImportarBaseEl = document.getElementById('btnImportarBase');
+const baseStatusEl = document.getElementById('baseStatus');
+function atualizarBaseStatus(){
+  const n = carregarBase().length;
+  baseStatusEl.textContent = n
+    ? ('Base carregada: ' + n + ' clientes (salva só neste navegador).')
+    : 'Sem base importada — peça o arquivo empresas-mury.json à equipe Mury.';
+}
+btnImportarBaseEl.addEventListener('click', () => baseFileEl.click());
+baseFileEl.addEventListener('change', () => {
+  const f = baseFileEl.files[0]; if (!f) return;
+  const leitor = new FileReader();
+  leitor.onload = () => {
+    try{
+      const dados = JSON.parse(String(leitor.result).replace(/^\uFEFF/, ''));
+      const ok = Array.isArray(dados) && dados.length > 0 &&
+        dados.every(p => Array.isArray(p) && p.length === 2 && typeof p[0] === 'string' && typeof p[1] === 'string');
+      if (!ok) throw new Error('formato');
+      localStorage.setItem(BASE_KEY, JSON.stringify(dados));
+      baseStatusEl.textContent = 'Base importada: ' + dados.length + ' clientes (salva só neste navegador).';
+    }catch(e){
+      baseStatusEl.textContent = 'Arquivo inválido — use o empresas-mury.json fornecido internamente.';
+    }
+    baseFileEl.value = '';
+  };
+  leitor.readAsText(f, 'utf-8');
+});
+atualizarBaseStatus();
+
+/* =====================================================================
+   CONTROLE DE UI CONDICIONAL
+   ===================================================================== */
+const modalidadeEl = document.getElementById('modalidade');
+const avisoTipoWrap = document.getElementById('lblAvisoTipoWrap');
+const bannerJustaCausa = document.getElementById('bannerJustaCausa');
+const chkGradacao = document.getElementById('chkGradacao');
+const estabEls = Array.from(document.querySelectorAll('.estab'));
+const bannerEstabilidade = document.getElementById('bannerEstabilidade');
+const btnCalcular = document.getElementById('btnCalcular');
+
+function atualizarUiModalidade(){
+  const m = modalidadeEl.value;
+  avisoTipoWrap.style.display = (m==='termino_experiencia' || m==='justa_causa') ? 'none' : 'flex';
+  bannerJustaCausa.style.display = (m==='justa_causa') ? 'block' : 'none';
+  atualizarBotaoCalcular();
+}
+function algumaEstabilidade(){ return estabEls.some(el => el.checked); }
+function atualizarBotaoCalcular(){
+  const bloqueado = algumaEstabilidade() || (modalidadeEl.value==='justa_causa' && !chkGradacao.checked);
+  bannerEstabilidade.style.display = algumaEstabilidade() ? 'block' : 'none';
+  btnCalcular.disabled = bloqueado;
+}
+modalidadeEl.addEventListener('change', atualizarUiModalidade);
+chkGradacao.addEventListener('change', atualizarBotaoCalcular);
+estabEls.forEach(el => el.addEventListener('change', atualizarBotaoCalcular));
+atualizarUiModalidade();
+
+/* =====================================================================
+   MOTOR DE CÁLCULO
+   ===================================================================== */
+let ULTIMO_CALCULO = null;
+
+function calcular(){
+  const modalidade = modalidadeEl.value;
+  const admissao = parseISO(document.getElementById('dataAdmissao').value);
+  const desligamento = parseISO(document.getElementById('dataDesligamento').value);
+  const avisoTipo = document.getElementById('avisoTipo').value;
+  const salarioBase = Number(document.getElementById('salarioBase').value)||0;
+  const mediaHE = Number(document.getElementById('mediaHE').value)||0;
+  const mediaComissao = Number(document.getElementById('mediaComissao').value)||0;
+  const mediaAdicionais = Number(document.getElementById('mediaAdicionais').value)||0;
+  const mediaVariaveis = mediaHE + mediaComissao + mediaAdicionais;
+  const baseCalculo = salarioBase + mediaVariaveis;
+  const faltas = Number(document.getElementById('faltas').value)||0;
+  const chkFeriasVencidas = document.getElementById('chkFeriasVencidas').checked;
+  const chkFeriasDobro = document.getElementById('chkFeriasDobro').checked;
+  const saldoFgts = Number(document.getElementById('saldoFgts').value)||0;
+  const anoComp = document.getElementById('anoComp').value;
+  const irrfManual = Number(document.getElementById('irrfManual').value)||0;
+  const outrosDescontos = Number(document.getElementById('outrosDescontos').value)||0;
+
+  if (!admissao || !desligamento){ alert('Informe a data de admissão e a data de desligamento.'); return null; }
+  if (desligamento < admissao){ alert('A data de desligamento não pode ser anterior à admissão.'); return null; }
+
+  const anosCompletos = fullYears(admissao, desligamento);
+
+  // ---- Aviso prévio ----
+  let avisoDias = 0, avisoValor = 0, avisoDevidoPor = null, projeta = false;
+  if (modalidade === 'dispensa_sem_justa_causa'){
+    avisoDias = Math.min(90, 30 + 3*anosCompletos);
+    avisoDevidoPor = 'empregadora';
+    projeta = (avisoTipo === 'indenizado');
+    avisoValor = avisoTipo === 'indenizado' ? (baseCalculo/30)*avisoDias : 0; // trabalhado já é salário do mês normal
+  } else if (modalidade === 'acordo_484a'){
+    const diasIntegral = Math.min(90, 30 + 3*anosCompletos);
+    avisoDias = avisoTipo === 'indenizado' ? Math.round(diasIntegral/2) : diasIntegral;
+    avisoDevidoPor = 'empregadora';
+    projeta = (avisoTipo === 'indenizado');
+    avisoValor = avisoTipo === 'indenizado' ? (baseCalculo/30)*avisoDias : 0;
+  } else if (modalidade === 'pedido_demissao'){
+    avisoDias = Math.min(90, 30 + 3*anosCompletos);
+    avisoDevidoPor = 'empregado';
+  }
+  // término de experiência e justa causa: sem aviso
+
+  const dataProjecao = projeta ? addDays(desligamento, avisoDias) : desligamento;
+
+  // ---- Saldo de salário (dias trabalhados no mês do desligamento) ----
+  const diasNoMesDeslig = new Date(desligamento.getFullYear(), desligamento.getMonth()+1, 0).getDate();
+  const diaDeslig = desligamento.getDate();
+  const saldoSalario = (baseCalculo/30) * diaDeslig;
+
+  // ---- 13º proporcional ----
+  let decimoDevido = !(modalidade === 'justa_causa');
+  const inicio13 = (admissao.getFullYear() === desligamento.getFullYear()) ? admissao : new Date(desligamento.getFullYear(), 0, 1);
+  const meses13 = decimoDevido ? contarMesesFracao(inicio13, dataProjecao) : 0;
+  const decimoValor = decimoDevido ? (baseCalculo/12)*meses13 : 0;
+
+  // ---- Férias proporcionais ----
+  let feriasPropDevida = !(modalidade === 'justa_causa');
+  const inicioFerias = inicioPeriodoAquisitivoAtual(admissao, dataProjecao);
+  const mesesFerias = feriasPropDevida ? contarMesesFracao(inicioFerias, dataProjecao) : 0;
+  let fatorFaltas = 1;
+  if (faltas >= 6 && faltas <= 14) fatorFaltas = 24/30;
+  else if (faltas >= 15 && faltas <= 23) fatorFaltas = 18/30;
+  else if (faltas >= 24 && faltas <= 32) fatorFaltas = 12/30;
+  else if (faltas > 32) fatorFaltas = 0;
+  const feriasPropBase = feriasPropDevida ? (baseCalculo/12)*mesesFerias*fatorFaltas : 0;
+  const feriasPropValor = feriasPropBase * (4/3); // + 1/3 constitucional
+
+  // ---- Férias vencidas ----
+  let feriasVencValor = 0;
+  if (chkFeriasVencidas){
+    feriasVencValor = baseCalculo * (4/3) * (chkFeriasDobro ? 2 : 1);
+  }
+
+  // ---- Multa e saque FGTS ----
+  let multaFgtsPerc = 0;
+  if (modalidade === 'dispensa_sem_justa_causa') multaFgtsPerc = 0.40;
+  else if (modalidade === 'acordo_484a') multaFgtsPerc = 0.20;
+  const multaFgtsValor = saldoFgts * multaFgtsPerc;
+  const saqueFgtsTexto = (modalidade==='dispensa_sem_justa_causa') ? 'Integral (art. 20, I, Lei 8.036/90)'
+    : (modalidade==='acordo_484a') ? 'Até 80% do saldo (art. 484-A, §1º, CLT)'
+    : (modalidade==='termino_experiencia') ? 'Integral (art. 20, IX, Lei 8.036/90)'
+    : (modalidade==='pedido_demissao') ? 'Não autorizado'
+    : 'Não autorizado';
+
+  // ---- Aviso indenizado: desconto quando o EMPREGADO não cumpre (pedido de demissão) ----
+  let descontoAvisoNaoCumprido = 0;
+  if (modalidade === 'pedido_demissao' && avisoTipo === 'indenizado'){
+    descontoAvisoNaoCumprido = (baseCalculo/30)*avisoDias;
+  }
+
+  // ---- INSS (sobre proventos salariais: saldo + aviso trabalhado + médias já embutidas) ----
+  const baseInssMes = saldoSalario + (avisoTipo==='trabalhado' ? 0 : 0); // saldo já usa baseCalculo/30*dias
+  const inssMes = calcularINSS(baseInssMes, anoComp);
+  const inss13 = calcularINSS(decimoValor, anoComp);
+  const inssAuto = (inssMes===null || inss13===null);
+  const inssTotal = inssAuto ? 0 : (inssMes + inss13);
+
+  const proventos = [
+    {verba:'Saldo de salário', devida:true,
+      memoria:'('+brl(baseCalculo)+' ÷ 30) × '+diaDeslig+' dia(s)', valor: saldoSalario},
+    {verba:'Aviso prévio '+(avisoTipo==='indenizado'?'indenizado':'trabalhado')+(avisoDevidoPor==='empregado'?' (devido pelo empregado)':''),
+      devida: avisoDias>0 && avisoDevidoPor==='empregadora',
+      memoria: avisoDias>0 ? (avisoDias+' dias (30 + 3×'+anosCompletos+' ano(s), máx. 90 — Lei 12.506/2011)') : 'Não aplicável a esta modalidade',
+      valor: avisoDevidoPor==='empregadora' ? avisoValor : 0},
+    {verba:'13º salário proporcional', devida: decimoDevido,
+      memoria: decimoDevido ? ('('+brl(baseCalculo)+' ÷ 12) × '+meses13+' mês(es)') : 'Não devido nesta modalidade (Lei 4.090/62, art. 3º)',
+      valor: decimoValor},
+    {verba:'Férias proporcionais + 1/3', devida: feriasPropDevida,
+      memoria: feriasPropDevida ? ('('+brl(baseCalculo)+' ÷ 12) × '+mesesFerias+' mês(es)'+(fatorFaltas<1?(' × '+(fatorFaltas*30)+'/30 (faltas)'):'')+' × 4/3') : 'Não devida nesta modalidade (art. 146, § único CLT + Súmula 171 TST)',
+      valor: feriasPropValor},
+    {verba:'Férias vencidas + 1/3'+(chkFeriasDobro?' (em dobro)':''), devida: chkFeriasVencidas,
+      memoria: chkFeriasVencidas ? (brl(baseCalculo)+' × 4/3'+(chkFeriasDobro?' × 2 (art. 137 CLT)':'')) : 'Marque a caixa acima se houver período vencido',
+      valor: feriasVencValor},
+  ];
+
+  const descontos = [
+    {verba:'INSS sobre salário/aviso trabalhado', devida:!inssAuto, memoria: inssAuto ? 'Ano ≠ 2026 — calcular manualmente' : ('Tabela 2026 sobre '+brl(baseInssMes)), valor: inssAuto?0:inssMes},
+    {verba:'INSS sobre 13º (base própria)', devida:!inssAuto, memoria: inssAuto ? 'Ano ≠ 2026 — calcular manualmente' : ('Tabela 2026 sobre '+brl(decimoValor)), valor: inssAuto?0:inss13},
+    {verba:'IRRF (informado manualmente)', devida: irrfManual>0, memoria:'Valor apurado fora desta ferramenta', valor: irrfManual},
+    {verba:'Desconto de aviso prévio não cumprido', devida: descontoAvisoNaoCumprido>0, memoria: descontoAvisoNaoCumprido>0 ? (avisoDias+' dias não cumpridos (art. 487, §2º CLT)') : '—', valor: descontoAvisoNaoCumprido},
+    {verba:'Outros descontos (adiantamento, pensão, consignado)', devida: outrosDescontos>0, memoria:'Informado manualmente', valor: outrosDescontos},
+  ];
+
+  const totalProventos = proventos.reduce((s,p)=>s+p.valor,0);
+  const totalDescontos = descontos.reduce((s,p)=>s+p.valor,0);
+  const totalLiquido = totalProventos - totalDescontos;
+
+  ULTIMO_CALCULO = {
+    modalidade, admissao, desligamento, dataProjecao, avisoTipo, avisoDias, avisoDevidoPor,
+    salarioBase, mediaVariaveis, baseCalculo, anosCompletos,
+    proventos, descontos, totalProventos, totalDescontos, totalLiquido,
+    multaFgtsPerc, multaFgtsValor, saldoFgts, saqueFgtsTexto, inssAuto,
+    empRazao: empRazaoEl.value, empCnpj: empCnpjEl.value,
+    empEndereco: document.getElementById('empEndereco').value,
+    empRepresentante: document.getElementById('empRepresentante').value,
+    funcNome: document.getElementById('funcNome').value,
+    funcCpf: document.getElementById('funcCpf').value,
+    funcCargo: document.getElementById('funcCargo').value,
+  };
+  return ULTIMO_CALCULO;
+}
+
+function renderResultado(calc){
+  const tbody = document.querySelector('#tblResultado tbody');
+  tbody.innerHTML = '';
+  function linha(item, tipo){
+    const tr = document.createElement('tr');
+    if (!item.devida) tr.className='zero';
+    tr.innerHTML = '<td>'+item.verba+' <span class="tag '+(item.devida?'dev':'nao')+'">'+(item.devida?'devida':'não devida')+'</span></td>'+
+      '<td class="mem">'+item.memoria+'</td>'+
+      '<td class="val">'+(tipo==='desconto' && item.valor>0 ? '- ' : '')+'R$ '+brl(item.valor)+'</td>';
+    tbody.appendChild(tr);
+  }
+  calc.proventos.forEach(p=>linha(p,'provento'));
+  calc.descontos.forEach(d=>linha(d,'desconto'));
+  const trSub = document.createElement('tr'); trSub.className='total';
+  trSub.innerHTML = '<td colspan="2">Total de proventos</td><td class="val">R$ '+brl(calc.totalProventos)+'</td>';
+  tbody.appendChild(trSub);
+  const trDesc = document.createElement('tr'); trDesc.className='total';
+  trDesc.innerHTML = '<td colspan="2">Total de descontos</td><td class="val">- R$ '+brl(calc.totalDescontos)+'</td>';
+  tbody.appendChild(trDesc);
+  const trLiq = document.createElement('tr'); trLiq.className='total';
+  trLiq.innerHTML = '<td colspan="2">TOTAL LÍQUIDO</td><td class="val">R$ '+brl(calc.totalLiquido)+'</td>';
+  tbody.appendChild(trLiq);
+
+  document.getElementById('cardResultado').style.display='block';
+  document.getElementById('cardDocumento').style.display='block';
+}
+
+document.getElementById('btnCalcular').addEventListener('click', () => {
+  const calc = calcular();
+  if (calc) renderResultado(calc);
+});
+
+/* =====================================================================
+   TEMPLATES DE DOCUMENTO (padrão Mury — navy/dourado, base memorandos)
+   ===================================================================== */
+const CSS_DOC = `
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', Arial, sans-serif; background: #e8e8e8; color: #1a1a1a; }
+.page { width: 210mm; background: #fff; margin: 24px auto; box-shadow: 0 4px 24px rgba(0,0,0,0.13); }
+.doc-header { background: #1B2A4A; padding: 13px 22px 11px; display: flex; align-items: center; justify-content: space-between; }
+.doc-header .brand .brand-name { color: #fff; font-size: 14px; font-weight: 700; letter-spacing: 0.03em; line-height: 1.2; }
+.doc-header .brand .brand-sub { color: #8fa3c4; font-size: 8.5px; letter-spacing: 0.06em; text-transform: uppercase; margin-top: 1px; }
+.doc-header .doc-type { color: #C9A84C; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; text-align: right; line-height: 1.3; }
+.doc-header .doc-sub { font-size: 8px; color: #8fa3c4; letter-spacing: 0.05em; text-transform: uppercase; margin-top: 1px; text-align: right; }
+.gold-line { height: 3px; background: linear-gradient(to right, #C9A84C 55%, #1B2A4A 100%); }
+.doc-body { padding: 0 22px; }
+.id-block { border-left: 3px solid #C9A84C; background: #F7F6F2; padding: 9px 14px; border-radius: 0 6px 6px 0; margin-bottom: 14px; break-inside: avoid; page-break-inside: avoid; }
+.id-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px 20px; }
+.id-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px 16px; margin-top: 5px; }
+.id-field label { font-size: 7.5px; font-weight: 700; color: #8B7A3D; text-transform: uppercase; letter-spacing: 0.06em; display: block; margin-bottom: 1px; }
+.id-field .val { font-size: 10.5px; font-weight: 600; color: #1B2A4A; }
+.id-divider { border: none; border-top: 1px solid #DDD5BC; margin: 7px 0; }
+.id-section-label { font-size: 7.5px; font-weight: 700; color: #C9A84C; text-transform: uppercase; letter-spacing: 0.09em; margin-bottom: 5px; }
+.section-tag { display: inline-block; background: #1B2A4A; color: #C9A84C; font-size: 7.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; padding: 3px 10px; border-radius: 4px 4px 0 0; break-after: avoid; page-break-after: avoid; }
+.section-title { color: #1B2A4A; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; border-bottom: 1.5px solid #DDD5BC; padding-bottom: 8px; margin-bottom: 13px; text-align: center; break-after: avoid; page-break-after: avoid; }
+.section-block { margin-bottom: 0; padding: 22px 0 20px; border-bottom: 1px solid #e0d9cc; }
+.section-block:last-child { border-bottom: none; }
+.section-block > .section-tag:first-child { break-before: avoid; page-break-before: avoid; }
+.section-title + * { break-before: avoid; page-break-before: avoid; }
+.clause { padding: 7px 10px 7px 14px; border-left: 2px solid #DDD5BC; margin-bottom: 9px; text-align: justify; font-size: 10px; color: #222; line-height: 1.65; break-inside: avoid; page-break-inside: avoid; orphans: 3; widows: 3; }
+.clause strong { color: #1B2A4A; }
+.body-text { font-size: 10.5px; color: #222; line-height: 1.7; text-align: justify; margin-bottom: 10px; orphans: 3; widows: 3; }
+.highlight-box { border-left: 3px solid #C9A84C; background: #F7F4EC; padding: 9px 13px; border-radius: 0 6px 6px 0; margin-bottom: 10px; font-size: 10.5px; color: #222; line-height: 1.6; text-align: justify; break-inside: avoid; page-break-inside: avoid; }
+.alert-box { border-left: 3px solid #E08A2E; background: #FDF1E3; padding: 11px 14px; border-radius: 0 6px 6px 0; margin: 10px 0 14px; break-inside: avoid; page-break-inside: avoid; }
+.alert-box .alert-label { font-size: 7.5px; font-weight: 700; color: #B5661A; text-transform: uppercase; letter-spacing: 0.09em; margin-bottom: 5px; }
+.alert-box .alert-text { font-size: 10.5px; font-weight: 600; color: #1B2A4A; line-height: 1.6; text-align: justify; }
+.info-table { width: 100%; border-collapse: collapse; margin: 6px 0 14px; break-inside: avoid; page-break-inside: avoid; }
+.info-table caption { text-align: left; font-size: 7.5px; font-weight: 700; color: #C9A84C; text-transform: uppercase; letter-spacing: 0.09em; margin-bottom: 5px; caption-side: top; }
+.info-table th { background: #1B2A4A; color: #fff; font-size: 8.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; padding: 6px 10px; text-align: left; }
+.info-table td { font-size: 10px; color: #222; padding: 6px 10px; border-bottom: 1px solid #e0d9cc; }
+.info-table td.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.info-table tr { break-inside: avoid; page-break-inside: avoid; }
+.info-table tbody tr:nth-child(even) { background: #F7F6F2; }
+.info-table tfoot td { font-weight: 700; border-top: 1.5px solid #1B2A4A; }
+.sig-area { margin-top: 18px; break-inside: avoid; page-break-inside: avoid; }
+.sig-row { display: grid; gap: 24px; margin-bottom: 12px; }
+.sig-row.two { grid-template-columns: 1fr 1fr; }
+.sig-row.one { grid-template-columns: 1fr; max-width: 320px; margin-left: auto; margin-right: auto; }
+.sig-block { text-align: center; }
+.sig-line { border-top: 1.5px solid #1B2A4A; margin-bottom: 4px; margin-top: 28px; }
+.sig-name { font-size: 10px; font-weight: 700; color: #1B2A4A; line-height: 1.4; }
+.sig-role { font-size: 8.5px; color: #666; margin-top: 1px; }
+.sig-date-line { font-size: 10px; color: #222; text-align: center; margin-bottom: 12px; }
+.witnesses { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 12px; break-inside: avoid; page-break-inside: avoid; }
+.witness-line { border-top: 1px solid #888; margin-bottom: 3px; margin-top: 22px; }
+.witness-label { font-size: 8.5px; color: #555; }
+.logo-footer { text-align: center; padding: 8px 0 6px; border-top: 1px solid #E8E2D0; }
+.logo-text { font-size: 17px; font-weight: 700; color: #1B2A4A; letter-spacing: 0.08em; text-transform: lowercase; font-variant: small-caps; }
+.logo-tagline { font-size: 7.5px; color: #C9A84C; text-transform: uppercase; letter-spacing: 0.14em; margin-top: 1px; }
+.doc-footer { background: #1B2A4A; padding: 8px 22px; display: flex; justify-content: space-between; align-items: center; }
+.doc-footer .f-address { font-size: 7.5px; color: #8fa3c4; line-height: 1.5; }
+.doc-footer .f-contact { font-size: 7.5px; color: #C9A84C; text-align: right; line-height: 1.5; }
+.closing-anchor { break-inside: avoid; page-break-inside: avoid; }
+.campo{outline:1px dashed #C9A84C33}
+@media print {
+  body { background: #fff; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .page { margin: 0 auto; box-shadow: none; width: 100%; page-break-after: always; break-after: page; }
+  .page:last-child { page-break-after: auto; break-after: auto; }
+  .campo{outline:none}
+  @page { size: A4; margin: 15mm 14mm; }
+}
+`;
+
+const TEXTOS_MODALIDADE = {
+  dispensa_sem_justa_causa: {
+    subtitulo: 'CLT, art. 477 e 487',
+    clausula: 'A EMPREGADORA formaliza, por sua iniciativa e sem a ocorrência de justa causa, a rescisão do contrato de trabalho firmado com o(a) EMPREGADO(A) em {{DATA_ADMISSAO}}, com desligamento em {{DATA_DESLIGAMENTO}} e aviso prévio {{AVISO_DESC}}, nos termos do art. 477 e seguintes da CLT.'
+  },
+  pedido_demissao: {
+    subtitulo: 'CLT, art. 477 e 487, §2º',
+    clausula: 'O(A) EMPREGADO(A), admitido(a) em {{DATA_ADMISSAO}}, comunica à EMPREGADORA seu pedido de demissão, com desligamento em {{DATA_DESLIGAMENTO}}, {{AVISO_DESC}}, nos termos do art. 477 e do art. 487, §2º, da CLT.'
+  },
+  acordo_484a: {
+    subtitulo: "CLT, art. 484-A (Lei 13.467/2017)",
+    clausula: 'As partes, de comum acordo, resolvem por mútuo consentimento o contrato de trabalho firmado em {{DATA_ADMISSAO}}, com desligamento em {{DATA_DESLIGAMENTO}}, nos termos do art. 484-A da CLT (redação dada pela Lei nº 13.467/2017), com aviso prévio {{AVISO_DESC}}, observadas as reduções legais de multa do FGTS e movimentação da conta vinculada previstas no referido dispositivo.'
+  },
+  termino_experiencia: {
+    subtitulo: "CLT, art. 443, §2º, 'c' e 479",
+    clausula: "O contrato de experiência/prazo determinado firmado em {{DATA_ADMISSAO}} chega a seu termo final em {{DATA_DESLIGAMENTO}}, encerrando-se automaticamente nos termos do art. 443, §2º, alínea 'c', c/c art. 479 da CLT, sem ônus de aviso prévio para qualquer das partes."
+  },
+  justa_causa: {
+    subtitulo: 'CLT, art. 482',
+    clausula: 'A EMPREGADORA formaliza a rescisão do contrato de trabalho firmado em {{DATA_ADMISSAO}} por justa causa, com desligamento em {{DATA_DESLIGAMENTO}}, nos termos do art. 482 da CLT, em decorrência de falta grave praticada pelo(a) EMPREGADO(A), observada a gradação de penalidades previamente aplicada.'
+  }
+};
+
+function preencher(tpl, dados){
+  return tpl.replace(/\{\{(\w+)\}\}/g, (m,k) => (dados[k]!==undefined && dados[k]!==null) ? dados[k] : '');
+}
+
+function linhasTabelaDoc(calc){
+  let linhas = '';
+  calc.proventos.filter(p=>p.devida && p.valor>0.004).forEach(p=>{
+    linhas += '<tr><td>'+p.verba+'</td><td>'+p.memoria+'</td><td class="num">R$ '+brl(p.valor)+'</td></tr>';
+  });
+  calc.descontos.filter(d=>d.devida && d.valor>0.004).forEach(d=>{
+    linhas += '<tr><td>'+d.verba+'</td><td>'+d.memoria+'</td><td class="num">- R$ '+brl(d.valor)+'</td></tr>';
+  });
+  return linhas;
+}
+
+function montarDadosComuns(calc){
+  const tm = TEXTOS_MODALIDADE[calc.modalidade];
+  const avisoDesc = calc.avisoDevidoPor==='empregadora'
+    ? (calc.avisoDias+' dias, '+(calc.avisoTipo==='indenizado'?'indenizado':'trabalhado'))
+    : (calc.avisoDevidoPor==='empregado' ? (calc.avisoDias+' dias devidos pelo(a) empregado(a)') : 'não aplicável');
+  const clausulaTexto = preencher(tm.clausula, {
+    DATA_ADMISSAO: fmtBR(calc.admissao),
+    DATA_DESLIGAMENTO: fmtBR(calc.desligamento),
+    AVISO_DESC: avisoDesc
+  });
+  return {
+    SUBTITULO_BASE_LEGAL: tm.subtitulo,
+    CLAUSULA_MODALIDADE: clausulaTexto,
+    EMP_RAZAO: calc.empRazao || '{{PREENCHER — Razão social}}',
+    EMP_CNPJ: calc.empCnpj || '{{PREENCHER — CNPJ}}',
+    EMP_ENDERECO: calc.empEndereco || '{{PREENCHER — endereço}}',
+    EMP_REPRESENTANTE: calc.empRepresentante || '{{PREENCHER — representante}}',
+    FUNC_NOME: calc.funcNome || '{{PREENCHER — nome}}',
+    FUNC_CPF: calc.funcCpf || '{{PREENCHER — CPF}}',
+    FUNC_CARGO: calc.funcCargo || '{{PREENCHER — cargo}}',
+    DATA_ADMISSAO: fmtBR(calc.admissao),
+    DATA_DESLIGAMENTO: fmtBR(calc.desligamento),
+    LINHAS_TABELA: linhasTabelaDoc(calc),
+    TOTAL_LIQUIDO: brl(calc.totalLiquido),
+    TOTAL_EXTENSO: valorPorExtenso(calc.totalLiquido),
+    FGTS_MULTA_PERC: (calc.multaFgtsPerc*100).toFixed(0),
+    FGTS_MULTA_VALOR: brl(calc.multaFgtsValor),
+    FGTS_SAQUE_TEXTO: calc.saqueFgtsTexto,
+  };
+}
+
+function gerarAcordo(calc){
+  const dados = montarDadosComuns(calc);
+  const html = `<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="UTF-8"><title>Acordo Rescisório — {{FUNC_NOME}}</title>
+<style>${CSS_DOC}</style></head><body contenteditable="true">
+<div class="page">
+  <div class="doc-header">
+    <div class="brand"><div class="brand-name">Mury &middot; Assessoria Cont&aacute;bil</div><div class="brand-sub">Consultoria Trabalhista &amp; Departamento Pessoal</div></div>
+    <div><div class="doc-type">Acordo Rescis&oacute;rio</div><div class="doc-sub">{{SUBTITULO_BASE_LEGAL}}</div></div>
+  </div>
+  <div class="gold-line"></div>
+  <div class="doc-body">
+
+    <div class="section-block">
+      <div class="section-tag">Identifica&ccedil;&atilde;o</div>
+      <div class="section-title">Acordo de Rescis&atilde;o de Contrato de Trabalho</div>
+      <div class="id-block">
+        <div class="id-section-label">&#9658; Empregadora</div>
+        <div class="id-grid">
+          <div class="id-field"><label>Raz&atilde;o Social</label><div class="val campo">{{EMP_RAZAO}}</div></div>
+          <div class="id-field"><label>CNPJ</label><div class="val campo">{{EMP_CNPJ}}</div></div>
+        </div>
+        <div class="id-grid" style="margin-top:5px;">
+          <div class="id-field"><label>Sede</label><div class="val campo">{{EMP_ENDERECO}}</div></div>
+          <div class="id-field"><label>Representante Legal</label><div class="val campo">{{EMP_REPRESENTANTE}}</div></div>
+        </div>
+        <hr class="id-divider"/>
+        <div class="id-section-label">&#9658; Empregado(a)</div>
+        <div class="id-grid">
+          <div class="id-field"><label>Nome</label><div class="val campo">{{FUNC_NOME}}</div></div>
+          <div class="id-field"><label>CPF</label><div class="val campo">{{FUNC_CPF}}</div></div>
+        </div>
+        <div class="id-grid" style="margin-top:5px;">
+          <div class="id-field"><label>Cargo</label><div class="val campo">{{FUNC_CARGO}}</div></div>
+          <div class="id-field"><label>Admiss&atilde;o</label><div class="val campo">{{DATA_ADMISSAO}}</div></div>
+        </div>
+      </div>
+      <div class="body-text">{{CLAUSULA_MODALIDADE}}</div>
+    </div>
+
+    <div class="section-block">
+      <div class="section-tag">Cl&aacute;usula Primeira</div>
+      <div class="section-title">Das Verbas Rescis&oacute;rias</div>
+      <table class="info-table">
+        <caption>Verbas apuradas na rescis&atilde;o</caption>
+        <thead><tr><th>Verba</th><th>Base de c&aacute;lculo</th><th style="text-align:right">Valor</th></tr></thead>
+        <tbody>{{LINHAS_TABELA}}</tbody>
+        <tfoot><tr><td colspan="2">TOTAL L&Iacute;QUIDO</td><td class="num">R$ {{TOTAL_LIQUIDO}}</td></tr></tfoot>
+      </table>
+      <div class="highlight-box"><strong>1.1.</strong> O valor l&iacute;quido total desta rescis&atilde;o &eacute; de <strong>R$ {{TOTAL_LIQUIDO}} ({{TOTAL_EXTENSO}})</strong>.</div>
+    </div>
+
+    <div class="section-block">
+      <div class="section-tag">Cl&aacute;usula Segunda</div>
+      <div class="section-title">Do FGTS</div>
+      <div class="clause"><strong>2.1.</strong> Multa rescis&oacute;ria de {{FGTS_MULTA_PERC}}% sobre o saldo da conta vinculada, no valor de R$ {{FGTS_MULTA_VALOR}}, nos termos da Lei n&ordm; 8.036/90.</div>
+      <div class="clause"><strong>2.2.</strong> Movimenta&ccedil;&atilde;o da conta vinculada do FGTS: {{FGTS_SAQUE_TEXTO}}.</div>
+    </div>
+
+    <div class="section-block">
+      <div class="section-tag">Cl&aacute;usula Terceira</div>
+      <div class="section-title">Do Prazo e Da Quita&ccedil;&atilde;o</div>
+      <div class="clause"><strong>3.1.</strong> O pagamento das verbas discriminadas neste instrumento observar&aacute; o prazo do art. 477, &sect;6&ordm;, da CLT (at&eacute; 10 dias corridos contados do t&eacute;rmino do contrato).</div>
+      <div class="clause"><strong>3.2.</strong> Efetuado o pagamento, as partes d&atilde;o plena e geral quita&ccedil;&atilde;o das verbas discriminadas neste instrumento, sem preju&iacute;zo de eventuais direitos aqui n&atilde;o contemplados.</div>
+    </div>
+
+    <div class="section-block">
+      <div class="section-tag">Disposi&ccedil;&otilde;es Finais</div>
+      <div class="section-title">Das Disposi&ccedil;&otilde;es Finais</div>
+      <div class="clause"><strong>4.1.</strong> As partes elegem o foro da comarca do local de presta&ccedil;&atilde;o de servi&ccedil;os para dirimir quaisquer d&uacute;vidas decorrentes deste instrumento.</div>
+    </div>
+
+    <div class="section-block closing-anchor">
+      <div class="section-tag">Assinaturas</div>
+      <div class="section-title">Encerramento e Firmas</div>
+      <div class="sig-area">
+        <div class="sig-date-line campo">_____________, {{DATA_DESLIGAMENTO}}.</div>
+        <div class="sig-row two">
+          <div class="sig-block"><div class="sig-line"></div><div class="sig-name campo">{{EMP_RAZAO}}</div><div class="sig-role">CNPJ {{EMP_CNPJ}} &mdash; Empregadora</div></div>
+          <div class="sig-block"><div class="sig-line"></div><div class="sig-name campo">{{FUNC_NOME}}</div><div class="sig-role">CPF {{FUNC_CPF}} &mdash; Empregado(a)</div></div>
+        </div>
+        <div class="witnesses">
+          <div class="witness-block"><div class="witness-line"></div><div class="witness-label">TESTEMUNHA 1 &mdash; Nome e CPF</div></div>
+          <div class="witness-block"><div class="witness-line"></div><div class="witness-label">TESTEMUNHA 2 &mdash; Nome e CPF</div></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div class="logo-footer"><div class="logo-text">mury</div><div class="logo-tagline">Solu&ccedil;&otilde;es de Qualidade</div></div>
+  <div class="doc-footer">
+    <div class="f-address">Rua Ipiranga, 155 &mdash; Centro &mdash; S&atilde;o Louren&ccedil;o &mdash; MG<br/>Mury &middot; Assessoria Cont&aacute;bil</div>
+    <div class="f-contact">grupomury.com.br<br/>pessoal.ia.sl@grupomury.com.br</div>
+  </div>
+</div>
+</body></html>`;
+  return preencher(html, dados);
+}
+
+function gerarRecibo(calc){
+  const dados = montarDadosComuns(calc);
+  const html = `<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="UTF-8"><title>Recibo de Rescis&atilde;o &mdash; {{FUNC_NOME}}</title>
+<style>${CSS_DOC}</style></head><body contenteditable="true">
+<div class="page">
+  <div class="doc-header">
+    <div class="brand"><div class="brand-name">Mury &middot; Assessoria Cont&aacute;bil</div><div class="brand-sub">Consultoria Trabalhista &amp; Departamento Pessoal</div></div>
+    <div><div class="doc-type">Recibo de Rescis&atilde;o Contratual</div><div class="doc-sub">{{SUBTITULO_BASE_LEGAL}}</div></div>
+  </div>
+  <div class="gold-line"></div>
+  <div class="doc-body">
+
+    <div class="section-block">
+      <div class="section-tag">Identifica&ccedil;&atilde;o</div>
+      <div class="section-title">Recibo de Pagamento de Verbas Rescis&oacute;rias</div>
+      <div class="id-block">
+        <div class="id-section-label">&#9658; Empregadora</div>
+        <div class="id-grid">
+          <div class="id-field"><label>Raz&atilde;o Social</label><div class="val campo">{{EMP_RAZAO}}</div></div>
+          <div class="id-field"><label>CNPJ</label><div class="val campo">{{EMP_CNPJ}}</div></div>
+        </div>
+        <hr class="id-divider"/>
+        <div class="id-section-label">&#9658; Empregado(a)</div>
+        <div class="id-grid">
+          <div class="id-field"><label>Nome</label><div class="val campo">{{FUNC_NOME}}</div></div>
+          <div class="id-field"><label>CPF</label><div class="val campo">{{FUNC_CPF}}</div></div>
+        </div>
+        <div class="id-grid" style="margin-top:5px;">
+          <div class="id-field"><label>Cargo</label><div class="val campo">{{FUNC_CARGO}}</div></div>
+          <div class="id-field"><label>Per&iacute;odo</label><div class="val campo">{{DATA_ADMISSAO}} a {{DATA_DESLIGAMENTO}}</div></div>
+        </div>
+      </div>
+      <div class="body-text">Eu, {{FUNC_NOME}}, declaro ter recebido da empresa acima qualificada, nesta data, a import&acirc;ncia l&iacute;quida de <strong>R$ {{TOTAL_LIQUIDO}} ({{TOTAL_EXTENSO}})</strong>, referente &agrave; resci&atilde;o do meu contrato de trabalho, discriminada na tabela abaixo, dando plena e geral quita&ccedil;&atilde;o dos valores nela apurados.</div>
+    </div>
+
+    <div class="section-block">
+      <div class="section-tag">Verbas</div>
+      <div class="section-title">Discrimina&ccedil;&atilde;o dos Valores</div>
+      <table class="info-table">
+        <thead><tr><th>Verba</th><th>Base de c&aacute;lculo</th><th style="text-align:right">Valor</th></tr></thead>
+        <tbody>{{LINHAS_TABELA}}</tbody>
+        <tfoot><tr><td colspan="2">TOTAL L&Iacute;QUIDO RECEBIDO</td><td class="num">R$ {{TOTAL_LIQUIDO}}</td></tr></tfoot>
+      </table>
+    </div>
+
+    <div class="section-block closing-anchor">
+      <div class="section-tag">Assinaturas</div>
+      <div class="section-title">Encerramento e Firmas</div>
+      <div class="sig-area">
+        <div class="sig-date-line campo">_____________, {{DATA_DESLIGAMENTO}}.</div>
+        <div class="sig-row two">
+          <div class="sig-block"><div class="sig-line"></div><div class="sig-name campo">{{FUNC_NOME}}</div><div class="sig-role">CPF {{FUNC_CPF}} &mdash; Recebi</div></div>
+          <div class="sig-block"><div class="sig-line"></div><div class="sig-name campo">{{EMP_RAZAO}}</div><div class="sig-role">CNPJ {{EMP_CNPJ}} &mdash; Paguei</div></div>
+        </div>
+        <div class="witnesses">
+          <div class="witness-block"><div class="witness-line"></div><div class="witness-label">TESTEMUNHA 1 &mdash; Nome e CPF</div></div>
+          <div class="witness-block"><div class="witness-line"></div><div class="witness-label">TESTEMUNHA 2 &mdash; Nome e CPF</div></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div class="logo-footer"><div class="logo-text">mury</div><div class="logo-tagline">Solu&ccedil;&otilde;es de Qualidade</div></div>
+  <div class="doc-footer">
+    <div class="f-address">Rua Ipiranga, 155 &mdash; Centro &mdash; S&atilde;o Louren&ccedil;o &mdash; MG<br/>Mury &middot; Assessoria Cont&aacute;bil</div>
+    <div class="f-contact">grupomury.com.br<br/>pessoal.ia.sl@grupomury.com.br</div>
+  </div>
+</div>
+</body></html>`;
+  return preencher(html, dados);
+}
+
+let DOC_HTML_ATUAL = '';
+const docFrame = document.getElementById('docFrame');
+
+function mostrarDocumento(tipo){
+  if (!ULTIMO_CALCULO){ alert('Calcule as verbas primeiro.'); return; }
+  DOC_HTML_ATUAL = tipo==='acordo' ? gerarAcordo(ULTIMO_CALCULO) : gerarRecibo(ULTIMO_CALCULO);
+  docFrame.srcdoc = DOC_HTML_ATUAL;
+}
+document.getElementById('btnAcordo').addEventListener('click', () => mostrarDocumento('acordo'));
+document.getElementById('btnRecibo').addEventListener('click', () => mostrarDocumento('recibo'));
+
+document.getElementById('btnImprimir').addEventListener('click', () => {
+  if (!docFrame.contentWindow){ alert('Gere o documento primeiro.'); return; }
+  docFrame.contentWindow.focus();
+  docFrame.contentWindow.print();
+});
+document.getElementById('btnCopiar').addEventListener('click', () => {
+  const doc = docFrame.contentDocument;
+  const htmlAtual = doc ? '<!DOCTYPE html>\n'+doc.documentElement.outerHTML : DOC_HTML_ATUAL;
+  navigator.clipboard.writeText(htmlAtual).then(()=>alert('HTML copiado — cole no editor de sua preferência.'));
+});
+document.getElementById('btnBaixar').addEventListener('click', () => {
+  const doc = docFrame.contentDocument;
+  const htmlAtual = doc ? '<!DOCTYPE html>\n'+doc.documentElement.outerHTML : DOC_HTML_ATUAL;
+  const blob = new Blob([htmlAtual], {type:'text/html'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  const nomeFunc = (ULTIMO_CALCULO && ULTIMO_CALCULO.funcNome) ? ULTIMO_CALCULO.funcNome.replace(/[^a-z0-9]+/gi,'-') : 'documento';
+  a.download = 'rescisao-'+nomeFunc+'.html';
+  a.click();
+});
+</script>
+</body>
+</html>
