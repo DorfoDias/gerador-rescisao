@@ -1,2 +1,4 @@
 empresas-mury.json
 *.json
+.vercel
+.env*
