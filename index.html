@@ -457,9 +457,17 @@ function calcularINSS(base, ano){
 const EMPRESAS_MURY = [];
 /* Versao publica: a base de clientes NAO faz parte deste arquivo.
    Importe o arquivo interno empresas-mury.json (botao no cartao Empresa);
-   ela fica gravada apenas no localStorage deste navegador. */
+   ela fica gravada apenas no localStorage deste navegador.
+   Formatos aceitos: v2 {versao, empresas:[[nome, doc, endereco, codigo],...]}
+   ou lista simples de pares/triplas (legado). */
 const BASE_KEY = 'mury-gerador-rescisao-base';
-function carregarBase(){ try{ const b = JSON.parse(localStorage.getItem(BASE_KEY)||'[]'); return Array.isArray(b)?b:[]; }catch(e){ return []; } }
+function normalizarBase(bruto){
+  const arr = (bruto && Array.isArray(bruto.empresas)) ? bruto.empresas : bruto;
+  if (!Array.isArray(arr) || arr.length === 0) return null;
+  const ok = arr.every(p => Array.isArray(p) && p.length >= 2 && typeof p[0] === 'string' && typeof p[1] === 'string');
+  return ok ? arr : null;
+}
+function carregarBase(){ try{ return normalizarBase(JSON.parse(localStorage.getItem(BASE_KEY)||'[]')) || []; }catch(e){ return []; } }
 
 const CNPJ_DB_KEY = 'mury-gerador-rescisao-cnpjdb';
 function carregarCnpjDb(){ try{ return JSON.parse(localStorage.getItem(CNPJ_DB_KEY)||'{}'); }catch(e){ return {}; } }
@@ -475,8 +483,8 @@ function buscarEmpresas(q){
   const resultado = [];
   const vistos = new Set();
   EMPRESAS_MURY.concat(carregarBase()).forEach(function(par){
-    const nome = par[0], doc = par[1];
-    if (nome.toLowerCase().includes(ql)){ resultado.push([nome, doc]); vistos.add(nome+'|'+doc); }
+    const nome = par[0], doc = par[1], chave = nome+'|'+doc;
+    if (nome.toLowerCase().includes(ql) && !vistos.has(chave)){ resultado.push([nome, doc, par[2]||'']); vistos.add(chave); }
   });
   const db = carregarCnpjDb();
   Object.keys(db).forEach(nome => {
@@ -499,13 +507,16 @@ empRazaoEl.addEventListener('input', () => {
   if (!q){ empSuggestEl.classList.remove('show'); return; }
   const matches = buscarEmpresas(q);
   if (matches.length===0){ empSuggestEl.classList.remove('show'); return; }
-  matches.slice(0,8).forEach(([nome, doc]) => {
+  matches.slice(0,8).forEach(([nome, doc, endereco]) => {
     const opt = document.createElement('div');
     opt.textContent = nome + ' — ' + doc;
     opt.addEventListener('click', () => {
       empRazaoEl.value = nome; empCnpjEl.value = doc;
+      if (endereco) document.getElementById('empEndereco').value = endereco;
       empSuggestEl.classList.remove('show');
-      cnpjHintEl.textContent = 'CNPJ preenchido a partir da base de clientes Mury.';
+      cnpjHintEl.textContent = endereco
+        ? 'CNPJ e endereço preenchidos a partir da base de clientes Mury.'
+        : 'CNPJ preenchido a partir da base de clientes Mury.';
     });
     empSuggestEl.appendChild(opt);
   });
@@ -535,10 +546,8 @@ baseFileEl.addEventListener('change', () => {
   const leitor = new FileReader();
   leitor.onload = () => {
     try{
-      const dados = JSON.parse(String(leitor.result).replace(/^\uFEFF/, ''));
-      const ok = Array.isArray(dados) && dados.length > 0 &&
-        dados.every(p => Array.isArray(p) && p.length === 2 && typeof p[0] === 'string' && typeof p[1] === 'string');
-      if (!ok) throw new Error('formato');
+      const dados = normalizarBase(JSON.parse(String(leitor.result).replace(/^\uFEFF/, '')));
+      if (!dados) throw new Error('formato');
       localStorage.setItem(BASE_KEY, JSON.stringify(dados));
       baseStatusEl.textContent = 'Base importada: ' + dados.length + ' clientes (salva só neste navegador).';
     }catch(e){
