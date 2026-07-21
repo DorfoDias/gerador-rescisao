@@ -71,10 +71,11 @@ body{background:var(--bg);color:var(--ink);font:15px/1.55 "Segoe UI",system-ui,-
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px 18px}
 .grid.g3{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
 label{display:flex;flex-direction:column;gap:5px;font-size:11.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);font-weight:600}
-input[type=text],input[type=date],input[type=number],select{
+input[type=text],input[type=date],input[type=number],select,textarea{
   font:14px/1.3 "Segoe UI",system-ui,sans-serif;color:var(--ink);background:var(--bg);border:1px solid var(--line);
   border-radius:6px;padding:8px 10px;width:100%;
 }
+textarea{resize:vertical;min-height:44px}
 input:focus,select:focus{outline:2px solid var(--mint);outline-offset:1px}
 .hint{font-size:11.5px;color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0;margin-top:2px}
 .row-check{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink);text-transform:none;letter-spacing:0;font-weight:400}
@@ -295,6 +296,10 @@ footer.f .disc{font-size:11px;color:#9FC3CF}
   <!-- ============ DOCUMENTO ============ -->
   <div class="card" id="cardDocumento" style="display:none">
     <h2>8 · Gerar documento</h2>
+    <label style="margin-bottom:10px">Observações (opcional — saem no Demonstrativo de Valores)
+      <textarea id="obsDocumento" rows="2" placeholder="Ex.: pagamento agendado para 05/08/2026; valores conferidos com o cliente."></textarea>
+    </label>
+    <div class="banner warn" id="camposPendentes" style="display:none"></div>
     <div class="doctabs">
       <button class="btn sec" id="btnAcordo">Acordo Rescisório</button>
       <button class="btn sec" id="btnRecibo">Recibo Avulso</button>
@@ -1087,12 +1092,21 @@ const MODALIDADE_NOME = {
   justa_causa: 'Dispensa por justa causa (art. 482 da CLT)'
 };
 
+function escaparHtml(t){ return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
 function gerarDemonstrativo(calc){
   const dados = montarDadosComuns(calc);
   dados.MODALIDADE_NOME = MODALIDADE_NOME[calc.modalidade] || calc.modalidade;
   dados.TOTAL_PROVENTOS = brl(calc.totalProventos);
   dados.TOTAL_DESCONTOS = brl(calc.totalDescontos);
   dados.DATA_EMISSAO = fmtBR(new Date());
+  const obsEl = document.getElementById('obsDocumento');
+  const obs = obsEl ? obsEl.value.trim() : '';
+  dados.BLOCO_OBS = obs
+    ? '<div class="section-block"><div class="section-tag">Observa&ccedil;&otilde;es</div>'
+      + '<div class="section-title">Observa&ccedil;&otilde;es</div>'
+      + '<div class="body-text">' + escaparHtml(obs).replace(/\n/g,'<br/>') + '</div></div>'
+    : '';
   const html = `<!DOCTYPE html>
 <html lang="pt-BR"><head><meta charset="UTF-8"><title>Demonstrativo de Valores Rescis&oacute;rios &mdash; {{FUNC_NOME}}</title>
 <style>${CSS_DOC}</style></head><body contenteditable="true">
@@ -1162,6 +1176,20 @@ function gerarDemonstrativo(calc){
       </div>
     </div>
 
+    {{BLOCO_OBS}}
+
+    <div class="section-block closing-anchor">
+      <div class="section-tag">Ci&ecirc;ncia</div>
+      <div class="section-title">Ci&ecirc;ncia das Partes</div>
+      <div class="sig-area">
+        <div class="sig-date-line campo">_____________, {{DATA_EMISSAO}}.</div>
+        <div class="sig-row two">
+          <div class="sig-block"><div class="sig-line"></div><div class="sig-name campo">{{EMP_RAZAO}}</div><div class="sig-role">CNPJ {{EMP_CNPJ}} &mdash; Empregadora (ciente)</div></div>
+          <div class="sig-block"><div class="sig-line"></div><div class="sig-name campo">{{FUNC_NOME}}</div><div class="sig-role">CPF {{FUNC_CPF}} &mdash; Empregado(a) (ciente)</div></div>
+        </div>
+      </div>
+    </div>
+
   </div>
   <div class="logo-footer"><div class="logo-text">mury</div><div class="logo-tagline">Solu&ccedil;&otilde;es de Qualidade</div></div>
   <div class="doc-footer">
@@ -1176,8 +1204,26 @@ function gerarDemonstrativo(calc){
 let DOC_HTML_ATUAL = '';
 const docFrame = document.getElementById('docFrame');
 
+function avisarCamposPendentes(){
+  const essenciais = [
+    ['empRazao','Razão social'], ['empCnpj','CNPJ'], ['empEndereco','Endereço da empresa'],
+    ['empRepresentante','Representante legal'], ['funcNome','Nome do empregado'],
+    ['funcCpf','CPF do empregado'], ['funcCargo','Cargo']
+  ];
+  const faltando = essenciais.filter(([id]) => { const el = document.getElementById(id); return el && !el.value.trim(); }).map(([,rotulo]) => rotulo);
+  const banner = document.getElementById('camposPendentes');
+  if (faltando.length){
+    banner.innerHTML = '<b>Campos pendentes:</b> ' + faltando.join(', ') +
+      '. Eles aparecem destacados como {{PREENCHER}} no documento — complete acima e gere de novo, ou edite direto na prévia antes de imprimir.';
+    banner.style.display = 'block';
+  } else {
+    banner.style.display = 'none';
+  }
+}
+
 function mostrarDocumento(tipo){
   if (!ULTIMO_CALCULO){ alert('Calcule as verbas primeiro.'); return; }
+  avisarCamposPendentes();
   DOC_HTML_ATUAL = tipo==='acordo' ? gerarAcordo(ULTIMO_CALCULO)
     : (tipo==='recibo' ? gerarRecibo(ULTIMO_CALCULO) : gerarDemonstrativo(ULTIMO_CALCULO));
   docFrame.srcdoc = DOC_HTML_ATUAL;
