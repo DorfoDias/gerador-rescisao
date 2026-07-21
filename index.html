@@ -159,8 +159,8 @@ footer.f .disc{font-size:11px;color:#9FC3CF}
     <b>Antes de começar:</b> esta ferramenta cobre os casos de rotina (dispensa sem justa causa, pedido de
     demissão, acordo mútuo art. 484-A, término de contrato de experiência e justa causa). Ela <b>não</b>
     calcula rescisão indireta, culpa recíproca ou morte do empregado, não decide sobre CCT/ACT específica da
-    categoria e não substitui a checagem de estabilidade — confirme esses pontos com a skill
-    <code>consultoria-trabalhista</code>/<code>conferencia-rescisao</code> antes de gerar o documento final.
+    categoria e não substitui a checagem de estabilidade — confirme esses pontos com o responsável
+    técnico da Mury antes de gerar o documento final.
     Todo campo do documento gerado pode ser editado clicando dentro dele, antes de imprimir.
   </div>
 
@@ -213,7 +213,7 @@ footer.f .disc{font-size:11px;color:#9FC3CF}
           <option value="termino_experiencia">Término de contrato de experiência/prazo determinado</option>
           <option value="justa_causa">Justa causa (empregador)</option>
         </select>
-        <div class="hint">Rescisão indireta, culpa recíproca ou morte do(a) empregado(a): não cobertas — use a skill <code>conferencia-rescisao</code> em conversa.</div>
+        <div class="hint">Rescisão indireta, culpa recíproca ou morte do(a) empregado(a): não cobertas — encaminhe ao responsável técnico da Mury.</div>
       </label>
       <label>Data do desligamento<input type="date" id="dataDesligamento"></label>
       <label id="lblAvisoTipoWrap">Aviso prévio
@@ -272,8 +272,8 @@ footer.f .disc{font-size:11px;color:#9FC3CF}
       <label class="row-check"><input type="checkbox" class="estab"> Pré-aposentadoria prevista em CCT</label>
     </div>
     <div class="banner crit" id="bannerEstabilidade" style="display:none">
-      Estabilidade marcada — esta ferramenta <b>não gera o documento</b>. Consulte a skill
-      <code>consultoria-trabalhista</code> ou o jurídico trabalhista antes de prosseguir.
+      Estabilidade marcada — esta ferramenta <b>não gera o documento</b>. Consulte o responsável
+      técnico da Mury ou o jurídico trabalhista antes de prosseguir.
     </div>
   </div>
 
@@ -1044,7 +1044,7 @@ function gerarRecibo(calc){
           <div class="id-field"><label>Per&iacute;odo</label><div class="val campo">{{DATA_ADMISSAO}} a {{DATA_DESLIGAMENTO}}</div></div>
         </div>
       </div>
-      <div class="body-text">Eu, {{FUNC_NOME}}, declaro ter recebido da empresa acima qualificada, nesta data, a import&acirc;ncia l&iacute;quida de <strong>R$ {{TOTAL_LIQUIDO}} ({{TOTAL_EXTENSO}})</strong>, referente &agrave; resci&atilde;o do meu contrato de trabalho, discriminada na tabela abaixo, dando plena e geral quita&ccedil;&atilde;o dos valores nela apurados.</div>
+      <div class="body-text">Eu, {{FUNC_NOME}}, declaro ter recebido da empresa acima qualificada, nesta data, a import&acirc;ncia l&iacute;quida de <strong>R$ {{TOTAL_LIQUIDO}} ({{TOTAL_EXTENSO}})</strong>, referente &agrave; rescis&atilde;o do meu contrato de trabalho, discriminada na tabela abaixo, dando plena e geral quita&ccedil;&atilde;o dos valores nela apurados.</div>
     </div>
 
     <div class="section-block">
@@ -1063,8 +1063,8 @@ function gerarRecibo(calc){
       <div class="sig-area">
         <div class="sig-date-line campo">_____________, {{DATA_DESLIGAMENTO}}.</div>
         <div class="sig-row two">
-          <div class="sig-block"><div class="sig-line"></div><div class="sig-name campo">{{FUNC_NOME}}</div><div class="sig-role">CPF {{FUNC_CPF}} &mdash; Recebi</div></div>
-          <div class="sig-block"><div class="sig-line"></div><div class="sig-name campo">{{EMP_RAZAO}}</div><div class="sig-role">CNPJ {{EMP_CNPJ}} &mdash; Paguei</div></div>
+          <div class="sig-block"><div class="sig-line"></div><div class="sig-name campo">{{FUNC_NOME}}</div><div class="sig-role">CPF {{FUNC_CPF}} &mdash; Empregado(a)</div></div>
+          <div class="sig-block"><div class="sig-line"></div><div class="sig-name campo">{{EMP_RAZAO}}</div><div class="sig-role">CNPJ {{EMP_CNPJ}} &mdash; Empregadora</div></div>
         </div>
         <div class="witnesses">
           <div class="witness-block"><div class="witness-line"></div><div class="witness-label">TESTEMUNHA 1 &mdash; Nome e CPF</div></div>
