@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gerador de Documentos Avulsos de Rescisão — Mury</title>
+<title>DP da Mury — Gerador de Documentos Avulsos de Rescisão</title>
 <style>
 :root{
   --mury-950:#0C2E38; --mury-900:#103B47; --mury-800:#144653; --mury-700:#1C5568; --mury-600:#23677D;
@@ -115,17 +115,40 @@ iframe#docFrame{width:100%;height:720px;border:0;background:#fff;display:block}
 .printnote b{color:var(--ink)}
 footer.f{text-align:center;color:var(--muted);font-size:12px;padding:20px 0}
 .section-divider{border:none;border-top:1px dashed var(--line);margin:14px 0}
+/* ===== Padrão visual do portal Mury (muryspe.com.br) ===== */
+:root{--gold:#DFA63C;--gold-dark:#C08A22}
+.topband{border-bottom-color:var(--gold)}
+.logo .mury::after{background:var(--gold)}
+.logo .app{color:var(--gold)}
+.subnav{background:var(--surface);border-bottom:1px solid var(--line);box-shadow:var(--shadow)}
+.subnav .inner{max-width:1180px;margin:0 auto;padding:9px 20px;display:flex;gap:20px;align-items:center;font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--accent);text-transform:uppercase;flex-wrap:wrap}
+.subnav .star{color:var(--gold);font-size:15px}
+.subnav .item{color:var(--muted);font-weight:600}
+.card h2{background:linear-gradient(90deg,var(--mury-800),var(--mury-700));color:#fff;border-bottom:0;border-radius:8px;padding:10px 14px;box-shadow:var(--shadow)}
+footer.f{background:linear-gradient(90deg,var(--mury-900),var(--mury-800) 55%,var(--mury-700));color:#DCEAEE;text-align:center;font-size:12.5px;padding:18px 16px;line-height:1.9;border-top:3px solid var(--gold)}
+footer.f b{color:var(--gold);font-weight:700}
+footer.f .disc{font-size:11px;color:#9FC3CF}
+.wrap{padding-bottom:28px}
 </style>
 </head>
 <body>
 
 <div class="topband">
   <div class="inner">
-    <div class="logo"><span class="mury">mury</span><span class="app">Gerador de Documentos Avulsos</span></div>
+    <div class="logo"><span class="mury">mury</span><span class="app">DP</span></div>
     <div style="text-align:right">
-      <h1>Acordo Rescisório &amp; Recibo Avulso — cálculo e documento em minutos</h1>
-      <div style="font-size:11px;color:#9FC3CF">v1.0 · 21/07/2026</div>
+      <h1>Bem vindo(a) ao <b>DP da Mury</b> — Gerador de Documentos Avulsos de Rescisão</h1>
+      <div style="font-size:11px;color:#9FC3CF">v1.1 · 21/07/2026</div>
     </div>
+  </div>
+</div>
+
+<div class="subnav">
+  <div class="inner">
+    <span class="star">★</span>
+    <span>DP da Mury</span>
+    <span class="item">Gerador de Documentos Avulsos de Rescisão</span>
+    <span class="item">Acordo Rescisório &amp; Recibo Avulso</span>
   </div>
 </div>
 
@@ -288,8 +311,13 @@ footer.f{text-align:center;color:var(--muted);font-size:12px;padding:20px 0}
     </div>
   </div>
 
-  <footer class="f">Mury Assessoria Contábil · uso interno do Departamento Pessoal</footer>
 </div>
+
+<footer class="f">
+  ☎ 35 3339-2000 &nbsp;·&nbsp; ✉ sac.sl@grupomury.com.br &nbsp;·&nbsp; <b>CRC:</b> MG-011110/O-9<br>
+  R. Ipiranga, 155 – Centro, São Lourenço – MG, 37470-000<br>
+  <span class="disc">Mury Assessoria Contábil · uso interno do Departamento Pessoal</span>
+</footer>
 
 <script>
 /* =====================================================================
