@@ -1,4 +1,9 @@
 empresas-mury.json
+# *.json protege a base real de clientes — nunca remover esta linha.
 *.json
+# Excecoes: arquivos de publicacao, sem nenhum dado. O portal le o versao.json para
+# mostrar a versao que esta no ar; sem eles a ferramenta some do controle de versao.
+!versao.json
+!vercel.json
 .vercel
 .env*
